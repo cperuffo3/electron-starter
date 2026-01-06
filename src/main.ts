@@ -1,0 +1,152 @@
+import "dotenv/config";
+import { app, BrowserWindow } from "electron";
+import path from "path";
+import {
+  installExtension,
+  REACT_DEVELOPER_TOOLS,
+} from "electron-devtools-installer";
+import { ipcMain } from "electron/main";
+import { autoUpdater } from "electron-updater";
+import { ipcContext } from "@/ipc/context";
+import { IPC_CHANNELS, UPDATE_CHANNELS } from "./constants";
+
+const inDevelopment = process.env.NODE_ENV === "development";
+const isPortable = !!process.env.PORTABLE_EXECUTABLE_DIR;
+
+function getIconPath() {
+  if (inDevelopment) {
+    // In dev, assets are at the project root
+    return path.join(__dirname, "../../assets/icons/icon.png");
+  }
+  // In production, extraResource places assets in the resources folder
+  return path.join(process.resourcesPath, "assets/icons/icon.png");
+}
+
+function createWindow() {
+  const preload = path.join(__dirname, "preload.js");
+  const mainWindow = new BrowserWindow({
+    width: 1540,
+    height: 1080,
+    icon: getIconPath(),
+    webPreferences: {
+      devTools: inDevelopment,
+      contextIsolation: true,
+      nodeIntegration: true,
+      nodeIntegrationInSubFrames: false,
+
+      preload: preload,
+    },
+    titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "hidden",
+    trafficLightPosition:
+      process.platform === "darwin" ? { x: 5, y: 5 } : undefined,
+  });
+  ipcContext.setMainWindow(mainWindow);
+
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  } else {
+    mainWindow.loadFile(
+      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
+    );
+  }
+
+  // Open DevTools in a separate window in development mode
+  if (inDevelopment) {
+    mainWindow.webContents.openDevTools({ mode: "detach" });
+  }
+}
+
+async function installExtensions() {
+  try {
+    const result = await installExtension(REACT_DEVELOPER_TOOLS);
+    console.log(`Extensions installed successfully: ${result.name}`);
+  } catch {
+    console.error("Failed to install extensions");
+  }
+}
+
+function setupAutoUpdater() {
+  // Configure auto-updater
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  // Forward update events to renderer
+  autoUpdater.on("checking-for-update", () => {
+    console.log("[AutoUpdater] Checking for updates...");
+    ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.CHECKING);
+  });
+
+  autoUpdater.on("update-available", (info) => {
+    console.log("[AutoUpdater] Update available:", info.version);
+    ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.AVAILABLE, info);
+  });
+
+  autoUpdater.on("update-not-available", (info) => {
+    console.log("[AutoUpdater] No update available");
+    ipcContext.mainWindow?.webContents.send(
+      UPDATE_CHANNELS.NOT_AVAILABLE,
+      info,
+    );
+  });
+
+  autoUpdater.on("update-downloaded", (info) => {
+    console.log("[AutoUpdater] Update downloaded:", info.version);
+    ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.DOWNLOADED, info);
+  });
+
+  autoUpdater.on("download-progress", (progress) => {
+    console.log(
+      `[AutoUpdater] Download progress: ${progress.percent.toFixed(1)}%`,
+    );
+    ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.PROGRESS, progress);
+  });
+
+  autoUpdater.on("error", (error) => {
+    console.error("[AutoUpdater] Error:", error.message);
+    ipcContext.mainWindow?.webContents.send(
+      UPDATE_CHANNELS.ERROR,
+      error.message,
+    );
+  });
+
+  // Auto-check for updates on startup (only in production, non-portable)
+  if (!inDevelopment && !isPortable) {
+    setTimeout(() => {
+      autoUpdater.checkForUpdates().catch((err) => {
+        console.error("[AutoUpdater] Update check failed:", err);
+      });
+    }, 3000);
+  }
+}
+
+async function setupORPC() {
+  const { rpcHandler } = await import("./ipc/handler");
+
+  ipcMain.on(IPC_CHANNELS.START_ORPC_SERVER, (event) => {
+    const [serverPort] = event.ports;
+
+    serverPort.start();
+    rpcHandler.upgrade(serverPort);
+  });
+}
+
+app
+  .whenReady()
+  .then(createWindow)
+  .then(installExtensions)
+  .then(setupAutoUpdater)
+  .then(setupORPC);
+
+//osX only
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
+//osX only ends
