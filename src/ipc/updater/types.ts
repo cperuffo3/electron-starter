@@ -7,7 +7,7 @@ export interface UpdateInfo {
 
 export interface ReleaseNoteInfo {
   version: string;
-  note: string;
+  note: string | null;
 }
 
 export interface DownloadProgress {

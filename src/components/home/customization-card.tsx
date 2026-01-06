@@ -26,8 +26,8 @@ export function CustomizationCard() {
             className="text-muted-foreground mt-0.5 size-3"
           />
           <p className="text-muted-foreground text-[11px]">
-            Run <code className="text-foreground">pnpm init-project</code> to set
-            your app name, ID, and author info
+            Run <code className="text-foreground">pnpm init-project</code> to
+            set your app name, ID, and author info
           </p>
         </div>
         <div className="flex items-start gap-2">
@@ -36,8 +36,9 @@ export function CustomizationCard() {
             className="text-muted-foreground mt-0.5 size-3"
           />
           <p className="text-muted-foreground text-[11px]">
-            Replace <code className="text-foreground">assets/icons/icon.svg</code>{" "}
-            and run <code className="text-foreground">pnpm generate-icons</code>
+            Replace{" "}
+            <code className="text-foreground">assets/icons/icon.svg</code> and
+            run <code className="text-foreground">pnpm generate-icons</code>
           </p>
         </div>
         <div className="flex items-start gap-2">
@@ -46,8 +47,9 @@ export function CustomizationCard() {
             className="text-muted-foreground mt-0.5 size-3"
           />
           <p className="text-muted-foreground text-[11px]">
-            Add routes in <code className="text-foreground">src/routes/</code> and
-            IPC handlers in <code className="text-foreground">src/ipc/</code>
+            Add routes in <code className="text-foreground">src/routes/</code>{" "}
+            and IPC handlers in{" "}
+            <code className="text-foreground">src/ipc/</code>
           </p>
         </div>
       </CardContent>

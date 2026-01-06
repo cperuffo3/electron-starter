@@ -4,6 +4,8 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 function Spinner({
   className,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  icon: _icon,
   ...props
 }: React.ComponentProps<typeof FontAwesomeIcon>) {
   return (

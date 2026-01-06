@@ -187,8 +187,8 @@ async function main() {
 
     console.log("Next steps:");
     console.log("  1. Review the changes");
-    console.log("  2. Run: npm install");
-    console.log("  3. Run: npm run start");
+    console.log("  2. Run: pnpm install");
+    console.log("  3. Run: pnpm run start");
     console.log("  4. (Optional) Delete the /scripts directory");
     console.log("");
   } catch (error) {

@@ -34,13 +34,13 @@ A modern Electron boilerplate with React, Tailwind CSS 4, and shadcn/ui — desi
 # Clone or use "Use this template" on GitHub
 git clone https://github.com/cperuffo3/electron-starter.git my-app
 cd my-app
-npm install
+pnpm install
 ```
 
 ### 2. Initialize Your Project
 
 ```bash
-npm run init-project
+pnpm run init-project
 ```
 
 This wizard configures:
@@ -52,7 +52,7 @@ This wizard configures:
 ### 3. Start Development
 
 ```bash
-npm run start
+pnpm run start
 ```
 
 ### 4. Generate Your App Icon
@@ -60,7 +60,7 @@ npm run start
 Replace `assets/icons/icon.svg` with your own, then:
 
 ```bash
-npm run generate-icons
+pnpm run generate-icons
 ```
 
 This creates `.ico`, `.icns`, and `.png` formats for all platforms.
@@ -130,33 +130,33 @@ src/
 ### Development
 
 ```bash
-npm run start              # Run in development mode
-npm run lint               # ESLint check and fix
-npm run format             # Prettier format
+pnpm run start              # Run in development mode
+pnpm run lint               # ESLint check and fix
+pnpm run format             # Prettier format
 ```
 
 ### Build & Package
 
 ```bash
-npm run package            # Package for current platform
-npm run make               # Create distributable installers
+pnpm run package            # Package for current platform
+pnpm run make               # Create distributable installers
 ```
 
 ### Release
 
 ```bash
-npm run release            # Interactive version bump
-npm run release:patch      # 0.1.0 → 0.1.1
-npm run release:minor      # 0.1.0 → 0.2.0
-npm run release:major      # 0.1.0 → 1.0.0
+pnpm run release            # Interactive version bump
+pnpm run release:patch      # 0.1.0 → 0.1.1
+pnpm run release:minor      # 0.1.0 → 0.2.0
+pnpm run release:major      # 0.1.0 → 1.0.0
 ```
 
 ### Utilities
 
 ```bash
-npm run init-project              # Project setup wizard
-npm run generate-icons            # Generate icons from SVG
-npm run bump-shadcn-components    # Update shadcn/ui components
+pnpm run init-project              # Project setup wizard
+pnpm run generate-icons            # Generate icons from SVG
+pnpm run bump-shadcn-components    # Update shadcn/ui components
 ```
 
 ---
@@ -221,7 +221,7 @@ This project uses [release-it](https://github.com/release-it/release-it) with Gi
 
 ### Process
 
-1. Run `npm run release` (or `release:patch`, `release:minor`, `release:major`)
+1. Run `pnpm run release` (or `release:patch`, `release:minor`, `release:major`)
 2. The script validates code, bumps version, updates CHANGELOG, creates git tag
 3. GitHub Actions builds for Windows and macOS
 4. Release is published with installers attached

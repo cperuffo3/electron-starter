@@ -21,6 +21,10 @@ export default defineConfig([
     files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
   },
   { languageOptions: { globals: globals.browser } },
+  {
+    files: ["scripts/**/*.{js,mjs,cjs}"],
+    languageOptions: { globals: globals.node },
+  },
   pluginJs.configs.recommended,
   pluginReact.configs.flat["jsx-runtime"],
   reactHooks.configs.flat.recommended,

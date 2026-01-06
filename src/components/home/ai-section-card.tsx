@@ -31,8 +31,8 @@ export function AiSectionCard() {
           <span className="text-muted-foreground">your app description</span>
         </div>
         <p className="text-muted-foreground text-[11px]">
-          This command walks you through creating a complete specification for your
-          app in three phases:
+          This command walks you through creating a complete specification for
+          your app in three phases:
         </p>
         <div className="grid gap-2 sm:grid-cols-3">
           <div className="bg-background flex items-center gap-2 rounded-md px-3 py-2">
@@ -66,7 +66,9 @@ export function AiSectionCard() {
             />
             <div>
               <p className="text-xs font-medium">Implementation</p>
-              <p className="text-muted-foreground text-[10px]">Tasks & file paths</p>
+              <p className="text-muted-foreground text-[10px]">
+                Tasks & file paths
+              </p>
             </div>
           </div>
         </div>

@@ -152,30 +152,30 @@ ${description}
 ### Prerequisites
 
 - Node.js 20+
-- npm
+- pnpm
 
 ### Installation
 
 \`\`\`bash
-npm install
+pnpm install
 \`\`\`
 
 ### Development
 
 \`\`\`bash
-npm run start
+pnpm run start
 \`\`\`
 
 ### Build
 
 \`\`\`bash
-npm run package
+pnpm run package
 \`\`\`
 
 ### Create Distributable
 
 \`\`\`bash
-npm run make
+pnpm run make
 \`\`\`
 
 ## Tech Stack

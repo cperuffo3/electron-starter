@@ -1,6 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCode, faPalette, faPlug, faCog } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCode,
+  faPalette,
+  faPlug,
+  faCog,
+} from "@fortawesome/free-solid-svg-icons";
 
 export function FeaturesGrid() {
   return (

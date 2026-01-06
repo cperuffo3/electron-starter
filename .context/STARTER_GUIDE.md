@@ -21,15 +21,15 @@ This comprehensive guide teaches AI assistants (and developers) how to work with
 
 This is a modern Electron desktop application built with:
 
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| Framework | Electron 39 | Desktop app shell |
-| Build | Electron Forge + Vite | Packaging and bundling |
-| UI | React 19 + TypeScript | Component-based UI |
-| Styling | Tailwind CSS 4 + shadcn/ui | Utility-first CSS with pre-built components |
-| Routing | TanStack Router | Type-safe file-based routing |
-| IPC | oRPC | Type-safe main↔renderer communication |
-| Updates | electron-updater | Auto-updates from GitHub Releases |
+| Layer     | Technology                 | Purpose                                     |
+| --------- | -------------------------- | ------------------------------------------- |
+| Framework | Electron 39                | Desktop app shell                           |
+| Build     | Electron Forge + Vite      | Packaging and bundling                      |
+| UI        | React 19 + TypeScript      | Component-based UI                          |
+| Styling   | Tailwind CSS 4 + shadcn/ui | Utility-first CSS with pre-built components |
+| Routing   | TanStack Router            | Type-safe file-based routing                |
+| IPC       | oRPC                       | Type-safe main↔renderer communication       |
+| Updates   | electron-updater           | Auto-updates from GitHub Releases           |
 
 ### Process Model
 
@@ -159,23 +159,23 @@ The boilerplate uses [oRPC](https://orpc.dev/) for type-safe communication betwe
 
 ```typescript
 // Option 1: Use action wrappers (recommended)
-import { toggleTheme } from '@/actions/theme';
+import { toggleTheme } from "@/actions/theme";
 await toggleTheme();
 
 // Option 2: Direct IPC client access
-import { ipc } from '@/ipc/manager';
+import { ipc } from "@/ipc/manager";
 const version = await ipc.client.app.appVersion();
 ```
 
 ### Available IPC Domains
 
-| Domain | Methods | Purpose |
-|--------|---------|---------|
-| `theme` | `getCurrentThemeMode()`, `setThemeMode(mode)`, `toggleThemeMode()` | Theme management |
-| `window` | `minimizeWindow()`, `maximizeWindow()`, `closeWindow()` | Window controls |
-| `app` | `currentPlatform()`, `appVersion()` | App info |
-| `shell` | `openExternalLink(url)` | Open URLs in browser |
-| `updater` | `checkForUpdates()`, `downloadUpdate()`, `installUpdate()`, `isPortable()` | Auto-updates |
+| Domain    | Methods                                                                    | Purpose              |
+| --------- | -------------------------------------------------------------------------- | -------------------- |
+| `theme`   | `getCurrentThemeMode()`, `setThemeMode(mode)`, `toggleThemeMode()`         | Theme management     |
+| `window`  | `minimizeWindow()`, `maximizeWindow()`, `closeWindow()`                    | Window controls      |
+| `app`     | `currentPlatform()`, `appVersion()`                                        | App info             |
+| `shell`   | `openExternalLink(url)`                                                    | Open URLs in browser |
+| `updater` | `checkForUpdates()`, `downloadUpdate()`, `installUpdate()`, `isPortable()` | Auto-updates         |
 
 ---
 
@@ -252,7 +252,7 @@ export const router = {
   app,
   shell,
   updater,
-  database,  // Add new domain
+  database, // Add new domain
 };
 ```
 
@@ -325,13 +325,13 @@ export const Route = createFileRoute("/settings")({
 
 ### Route File Naming
 
-| File | Route |
-|------|-------|
-| `index.tsx` | `/` |
-| `settings.tsx` | `/settings` |
-| `users/index.tsx` | `/users` |
-| `users/$userId.tsx` | `/users/:userId` (dynamic) |
-| `__root.tsx` | Root layout (wraps all routes) |
+| File                | Route                          |
+| ------------------- | ------------------------------ |
+| `index.tsx`         | `/`                            |
+| `settings.tsx`      | `/settings`                    |
+| `users/index.tsx`   | `/users`                       |
+| `users/$userId.tsx` | `/users/:userId` (dynamic)     |
+| `__root.tsx`        | Root layout (wraps all routes) |
 
 ### Navigation
 
@@ -409,7 +409,7 @@ npx shadcn@latest add tabs
 ### Updating All Components
 
 ```bash
-npm run bump-shadcn-components
+pnpm run bump-shadcn-components
 ```
 
 ---
@@ -462,6 +462,7 @@ src/components/
 ### When to Create a Component
 
 Extract code into a component when:
+
 - A section of JSX exceeds ~50 lines
 - Logic/UI is repeated across the page
 - A distinct piece of functionality can be named and isolated
@@ -524,6 +525,7 @@ When a page-specific component needs to be used elsewhere:
 ### Anti-Patterns to Avoid
 
 ❌ **Bloated pages** - Pages with hundreds of lines of inline JSX
+
 ```typescript
 // BAD: Everything inline in the page
 function SettingsPage() {
@@ -536,6 +538,7 @@ function SettingsPage() {
 ```
 
 ❌ **Flat component directory** - All components in one folder
+
 ```
 // BAD: No organization
 src/components/
@@ -547,6 +550,7 @@ src/components/
 ```
 
 ❌ **Modifying shadcn/ui components** - Changes get overwritten on update
+
 ```typescript
 // BAD: Editing ui/button.tsx directly
 // Instead, create a wrapper in shared/ if needed
@@ -640,33 +644,34 @@ await ipc.client.updater.installUpdate();
 ### Development
 
 ```bash
-npm run start          # Start with hot reload
+pnpm run start          # Start with hot reload
 ```
 
 ### Code Quality
 
 ```bash
-npm run lint           # ESLint
-npm run format         # Prettier
+pnpm run lint           # ESLint
+pnpm run format         # Prettier
 ```
 
 ### Building
 
 ```bash
-npm run package        # Package for current platform
-npm run make           # Create distributable installers
+pnpm run package        # Package for current platform
+pnpm run make           # Create distributable installers
 ```
 
 ### Releasing
 
 ```bash
-npm run release        # Interactive version bump + changelog
-npm run release:patch  # 0.1.0 → 0.1.1
-npm run release:minor  # 0.1.0 → 0.2.0
-npm run release:major  # 0.1.0 → 1.0.0
+pnpm run release        # Interactive version bump + changelog
+pnpm run release:patch  # 0.1.0 → 0.1.1
+pnpm run release:minor  # 0.1.0 → 0.2.0
+pnpm run release:major  # 0.1.0 → 1.0.0
 ```
 
 The release process:
+
 1. Runs lint and format checks
 2. Bumps version in package.json
 3. Generates CHANGELOG.md from commits
@@ -727,7 +732,7 @@ import { toggleTheme } from "@/actions/theme";
 import { getCurrentPlatform, getAppVersion } from "@/actions/app";
 
 const platform = await getCurrentPlatform(); // "win32" | "darwin" | "linux"
-const version = await getAppVersion();       // "0.1.0"
+const version = await getAppVersion(); // "0.1.0"
 ```
 
 ---
@@ -739,6 +744,7 @@ The boilerplate includes [dotenv](https://github.com/motdotla/dotenv) for enviro
 ### Setup
 
 1. Copy the example file to create your local `.env`:
+
    ```bash
    cp .env.example .env
    ```
@@ -777,24 +783,24 @@ const debugMode = process.env.DEBUG === "true";
 
 ### File Locations by Task
 
-| Task | Files to Modify |
-|------|-----------------|
-| Add new page | `src/routes/<name>.tsx` |
-| Add IPC handler | `src/ipc/<domain>/handlers.ts`, `src/ipc/router.ts` |
-| Add UI component | `npx shadcn@latest add <component>` |
-| Modify theme colors | `src/styles/global.css` |
-| Change app icon | `assets/icons/icon.svg` → `npm run generate-icons` |
-| Configure app | `npm run init-project` |
+| Task                | Files to Modify                                     |
+| ------------------- | --------------------------------------------------- |
+| Add new page        | `src/routes/<name>.tsx`                             |
+| Add IPC handler     | `src/ipc/<domain>/handlers.ts`, `src/ipc/router.ts` |
+| Add UI component    | `npx shadcn@latest add <component>`                 |
+| Modify theme colors | `src/styles/global.css`                             |
+| Change app icon     | `assets/icons/icon.svg` → `pnpm run generate-icons` |
+| Configure app       | `pnpm run init-project`                             |
 
 ### Common Commands
 
 ```bash
-npm run start              # Development
-npm run lint               # Check code
-npm run format             # Format code
-npm run make               # Build installer
-npm run release            # Version bump + release
-npm run bump-shadcn-components  # Update UI library
-npm run generate-icons     # Regenerate icons
-npm run init-project       # Setup wizard
+pnpm run start              # Development
+pnpm run lint               # Check code
+pnpm run format             # Format code
+pnpm run make               # Build installer
+pnpm run release            # Version bump + release
+pnpm run bump-shadcn-components  # Update UI library
+pnpm run generate-icons     # Regenerate icons
+pnpm run init-project       # Setup wizard
 ```

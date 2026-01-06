@@ -7,11 +7,12 @@ import {
 
 import { cn } from "@/utils/tailwind";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-} from "lucide-react";
+  faChevronLeft,
+  faChevronRight,
+  faChevronDown,
+} from "@fortawesome/free-solid-svg-icons";
 
 function Calendar({
   className,
@@ -31,7 +32,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "bg-background group/calendar p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(6)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        "bg-background group/calendar p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(6)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className,
@@ -143,24 +144,30 @@ function Calendar({
             />
           );
         },
-        Chevron: ({ className, orientation, ...props }) => {
+        Chevron: ({ className, orientation }) => {
           if (orientation === "left") {
             return (
-              <ChevronLeftIcon className={cn("size-4", className)} {...props} />
+              <FontAwesomeIcon
+                icon={faChevronLeft}
+                className={cn("size-4", className)}
+              />
             );
           }
 
           if (orientation === "right") {
             return (
-              <ChevronRightIcon
+              <FontAwesomeIcon
+                icon={faChevronRight}
                 className={cn("size-4", className)}
-                {...props}
               />
             );
           }
 
           return (
-            <ChevronDownIcon className={cn("size-4", className)} {...props} />
+            <FontAwesomeIcon
+              icon={faChevronDown}
+              className={cn("size-4", className)}
+            />
           );
         },
         DayButton: CalendarDayButton,

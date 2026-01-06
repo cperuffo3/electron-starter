@@ -16,8 +16,12 @@
     "publish": false
   },
   "hooks": {
-    "before:init": ["npm run lint", "npm run format", "npx tsc --noEmit"],
-    "after:bump": "npm install --package-lock-only"
+    "before:init": [
+      "pnpm run lint",
+      "pnpm run format",
+      "pnpm exec tsc --noEmit"
+    ],
+    "after:bump": "pnpm install --lockfile-only"
   },
   "plugins": {
     "@release-it/conventional-changelog": {
