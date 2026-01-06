@@ -9,8 +9,9 @@
     "requireUpstream": true
   },
   "github": {
-    "release": false,
-    "releaseName": "v${version}"
+    "release": true,
+    "releaseName": "v${version}",
+    "tokenRef": "GITHUB_TOKEN"
   },
   "npm": {
     "publish": false
