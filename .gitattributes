@@ -14,11 +14,12 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 
-# Lock files - use union merge strategy to combine both sides
-# After merging, run `pnpm install` to regenerate properly
-pnpm-lock.yaml merge=union
-package-lock.json merge=union
-yarn.lock merge=union
+# Lock files - treat as binary to prevent corruption
+# These should be regenerated, not merged
+# After merge conflicts, run package manager install to regenerate
+pnpm-lock.yaml -merge -diff linguist-generated=true
+package-lock.json -merge -diff linguist-generated=true
+yarn.lock -merge -diff linguist-generated=true
 
 # Generated files that should be regenerated on conflict
 *.map merge=ours linguist-generated=true
