@@ -16,12 +16,8 @@
     "publish": false
   },
   "hooks": {
-    "before:init": [
-      "pnpm run lint",
-      "pnpm run format",
-      "pnpm exec tsc --noEmit"
-    ],
-    "after:bump": "pnpm install --lockfile-only"
+    "before:init": ["pnpm run lint", "pnpm exec tsc --noEmit"],
+    "after:bump": "pnpm install --lockfile-only && pnpm run format"
   },
   "plugins": {
     "@release-it/conventional-changelog": {

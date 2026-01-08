@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-* upadater and release setup ([548c7fd](https://github.com/cperuffo3/electron-starter/commit/548c7fd6b47e686bd8b50783476ff84a656ff5c9))
+- upadater and release setup ([548c7fd](https://github.com/cperuffo3/electron-starter/commit/548c7fd6b47e686bd8b50783476ff84a656ff5c9))
 
 ## [0.1.2](https://github.com/cperuffo3/electron-starter/compare/v0.1.1...v0.1.2) (2026-01-06)
 
