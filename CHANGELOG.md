@@ -1,10 +1,16 @@
 # Changelog
 
+## [0.2.2](https://github.com/cperuffo3/electron-starter/compare/v0.2.1...v0.2.2) (2026-01-08)
+
+### Bug Fixes
+
+* workflow artifact upload duplicates ([4031e96](https://github.com/cperuffo3/electron-starter/commit/4031e96ea5cd684dcc296b9a3e94e80d95ce1ba2))
+
 ## [0.2.1](https://github.com/cperuffo3/electron-starter/compare/v0.2.0...v0.2.1) (2026-01-08)
 
 ### Bug Fixes
 
-* electron-builder and workflow fixes ([a426a85](https://github.com/cperuffo3/electron-starter/commit/a426a8558307fd2a5b7abf401ef56b9d67b4df71))
+- electron-builder and workflow fixes ([a426a85](https://github.com/cperuffo3/electron-starter/commit/a426a8558307fd2a5b7abf401ef56b9d67b4df71))
 
 ## [0.2.0](https://github.com/cperuffo3/electron-starter/compare/v0.1.4...v0.2.0) (2026-01-08)
 
