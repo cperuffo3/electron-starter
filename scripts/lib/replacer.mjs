@@ -232,3 +232,192 @@ export async function removeInitScript(rootDir) {
     return false;
   }
 }
+
+/**
+ * Update electron-builder.yml with repository visibility and platform configuration
+ * @param {string} rootDir - Root directory of the project
+ * @param {object} config - Configuration object
+ * @param {string} config.githubOwner - GitHub owner
+ * @param {string} config.projectName - Project name
+ * @param {boolean} config.isPrivate - Whether the repository is private
+ * @param {string[]} config.platforms - Target platforms (windows, macos, linux)
+ */
+export async function updateElectronBuilderConfig(rootDir, config) {
+  const configPath = path.join(rootDir, "electron-builder.yml");
+
+  try {
+    let content = await fs.readFile(configPath, "utf-8");
+
+    // Update owner and repo
+    content = content.replace(/owner: .+/, `owner: ${config.githubOwner}`);
+    content = content.replace(/repo: .+/, `repo: ${config.projectName}`);
+
+    // Update private flag
+    content = content.replace(/private: (true|false)/, `private: ${config.isPrivate}`);
+
+    // Configure platform targets based on selected platforms
+    if (!config.platforms.includes("windows")) {
+      // Comment out Windows configuration
+      content = content.replace(
+        /(# Windows configuration\nwin:[\s\S]*?artifactName:[^\n]+)/,
+        (match) => match.split('\n').map(line => `# ${line}`).join('\n')
+      );
+    }
+
+    if (!config.platforms.includes("macos")) {
+      // Comment out macOS configuration
+      content = content.replace(
+        /(# macOS configuration\nmac:[\s\S]*?artifactName:[^\n]+)/,
+        (match) => match.split('\n').map(line => `# ${line}`).join('\n')
+      );
+    }
+
+    if (!config.platforms.includes("linux")) {
+      // Comment out Linux configuration
+      content = content.replace(
+        /(# Linux configuration\nlinux:[\s\S]*?# RPM-specific options[\s\S]*?- libXScrnSaver)/,
+        (match) => match.split('\n').map(line => `# ${line}`).join('\n')
+      );
+    }
+
+    await fs.writeFile(configPath, content, "utf-8");
+    return true;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return false;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Update release.yaml workflow with repository visibility and platform configuration
+ * @param {string} rootDir - Root directory of the project
+ * @param {object} config - Configuration object
+ * @param {boolean} config.isPrivate - Whether the repository is private
+ * @param {string[]} config.platforms - Target platforms (windows, macos, linux)
+ */
+export async function updateReleaseWorkflow(rootDir, config) {
+  const workflowPath = path.join(rootDir, ".github/workflows/release.yaml");
+
+  try {
+    let content = await fs.readFile(workflowPath, "utf-8");
+
+    // Update update-config.json creation based on repo visibility
+    if (config.isPrivate) {
+      // Comment out public repo step, uncomment private repo step
+      content = content.replace(
+        /( {6}# For public repos.*\n {6}- name: Create update-config\.json\n {8}run: \|\n {10}echo '\{"token":"\$\{\{ secrets\.GITHUB_TOKEN \}\}"\}' > update-config\.json\n {8}shell: bash\n)/,
+        (match) => match.split('\n').map(line => `# ${line}`).join('\n') + '\n'
+      );
+      content = content.replace(
+        /( {6}# For private repos:.*\n(?:.*\n)*? {6}# - name: Create update-config\.json \(Private Repo\)\n {6}#   run: \|\n {6}#     echo '\{"token":"\$\{\{ secrets\.GH_RELEASE_TOKEN \}\}"\}' > update-config\.json\n {6}#   shell: bash\n)/,
+        (match) => match.split('\n').map(line => line.replace(/^( {6})# /, '$1')).join('\n')
+      );
+    }
+
+    // Filter build matrix to only include selected platforms
+    const platformMap = {
+      windows: { os: "windows-latest", platform: "win" },
+      macos: { os: "macos-latest", platform: "mac" },
+      linux: { os: "ubuntu-latest", platform: "linux" },
+    };
+
+    const matrixItems = config.platforms
+      .map((p) => {
+        const platform = platformMap[p];
+        return `          - os: ${platform.os}\n            platform: ${platform.platform}`;
+      })
+      .join("\n");
+
+    content = content.replace(
+      /( {8}matrix:\n {10}include:\n)((?:.*\n)*?)( {0,8}\n {4}runs-on:)/,
+      `$1${matrixItems}\n$3`
+    );
+
+    // Update artifact download and release file upload sections
+    const artifactDownloads = config.platforms
+      .map((p) => {
+        const platform = platformMap[p].platform;
+        return `      - name: Download ${p === "macos" ? "macOS" : p.charAt(0).toUpperCase() + p.slice(1)} artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-${platform}
+          path: artifacts/${platform}`;
+      })
+      .join("\n\n");
+
+    content = content.replace(
+      /(  release:\n(?:.*\n)*? {6}- name: Download Windows artifacts\n(?:.*\n)*? {10}path: artifacts\/linux\n)/,
+      (match) => {
+        const beforeDownload = match.substring(0, match.indexOf("- name: Download Windows"));
+        return beforeDownload + artifactDownloads + "\n";
+      }
+    );
+
+    // Update release files based on platforms
+    const releaseFiles = [];
+    if (config.platforms.includes("windows")) {
+      releaseFiles.push(
+        "artifacts/win/**/*-Windows-Setup.exe"
+      );
+    }
+    if (config.platforms.includes("macos")) {
+      releaseFiles.push(
+        "artifacts/mac/**/*-macOS-x64.dmg",
+        "artifacts/mac/**/*-macOS-arm64.dmg"
+      );
+    }
+    if (config.platforms.includes("linux")) {
+      releaseFiles.push(
+        "artifacts/linux/**/*-Linux-amd64.deb",
+        "artifacts/linux/**/*-Linux-x86_64.rpm"
+      );
+    }
+
+    // Add latest.yml files
+    config.platforms.forEach((p) => {
+      const platform = platformMap[p].platform;
+      const suffix = platform === "mac" ? "latest-mac.yml" : platform === "linux" ? "latest-linux.yml" : "latest.yml";
+      releaseFiles.push(`artifacts/${platform}/**/${suffix}`);
+    });
+
+    const filesContent = releaseFiles.map(f => `            ${f}`).join("\n");
+    content = content.replace(
+      /( {10}files: \|\n)((?:.*\n)*?)( {8}env:)/,
+      `$1${filesContent}\n$3`
+    );
+
+    // Update download instructions in release body
+    const downloadInstructions = [];
+    if (config.platforms.includes("windows")) {
+      downloadInstructions.push("**Windows:** Download `Electron-Starter-*-Windows-Setup.exe`");
+    }
+    if (config.platforms.includes("macos")) {
+      downloadInstructions.push(
+        "**macOS (Intel):** Download `Electron-Starter-*-macOS-x64.zip`",
+        "**macOS (Apple Silicon):** Download `Electron-Starter-*-macOS-arm64.zip`"
+      );
+    }
+    if (config.platforms.includes("linux")) {
+      downloadInstructions.push(
+        "**Linux (Debian/Ubuntu):** Download `Electron-Starter-*-Linux-*.deb`",
+        "**Linux (Fedora/RHEL):** Download `Electron-Starter-*-Linux-*.rpm`"
+      );
+    }
+
+    const instructionsContent = downloadInstructions.join("\n            ");
+    content = content.replace(
+      /( {12}## Downloads\n\n)((?:.*\n)*?)( {12}\*Full changelog:)/,
+      `$1            ${instructionsContent}\n\n$3`
+    );
+
+    await fs.writeFile(workflowPath, content, "utf-8");
+    return true;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return false;
+    }
+    throw error;
+  }
+}

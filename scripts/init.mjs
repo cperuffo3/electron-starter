@@ -26,17 +26,21 @@ import {
   promptGitHubOwner,
   promptProductName,
   promptProjectName,
+  promptRepoVisibility,
   promptResetGit,
+  promptTargetPlatforms,
   promptVersion,
 } from "./lib/prompts.mjs";
 import {
   removeInitScript,
   updateClaudeMd,
+  updateElectronBuilderConfig,
   updateForgeConfig,
   updateIndexHtml,
   updateNotificationComponent,
   updatePackageJson,
   updateReadme,
+  updateReleaseWorkflow,
 } from "./lib/replacer.mjs";
 import { generateAppId, toTitleCase } from "./lib/utils.mjs";
 
@@ -113,6 +117,8 @@ async function main() {
   const productName = await promptProductName(defaultProductName);
   const description = await promptDescription();
   const githubOwner = await promptGitHubOwner();
+  const repoVisibility = await promptRepoVisibility();
+  const targetPlatforms = await promptTargetPlatforms();
   const authorName = await promptAuthorName();
   const authorEmail = await promptAuthorEmail();
   const version = await promptVersion();
@@ -120,6 +126,7 @@ async function main() {
 
   // Generate derived values
   const appId = generateAppId(projectName, githubOwner);
+  const isPrivate = repoVisibility === "private";
 
   // Display summary
   console.log("\n----------------------------------------");
@@ -129,6 +136,8 @@ async function main() {
   console.log(`  Product name:    ${productName}`);
   console.log(`  Description:     ${description}`);
   console.log(`  GitHub owner:    ${githubOwner}`);
+  console.log(`  Repository:      ${repoVisibility}`);
+  console.log(`  Platforms:       ${targetPlatforms.join(", ")}`);
   console.log(`  Author:          ${authorName} <${authorEmail}>`);
   console.log(`  App ID:          ${appId}`);
   console.log(`  Version:         ${version}`);
@@ -156,6 +165,20 @@ async function main() {
       authorName,
       authorEmail,
       appId,
+    });
+
+    console.log("Updating electron-builder.yml...");
+    await updateElectronBuilderConfig(ROOT, {
+      githubOwner,
+      projectName,
+      isPrivate,
+      platforms: targetPlatforms,
+    });
+
+    console.log("Updating release.yaml workflow...");
+    await updateReleaseWorkflow(ROOT, {
+      isPrivate,
+      platforms: targetPlatforms,
     });
 
     console.log("Updating forge.config.ts...");
@@ -189,7 +212,21 @@ async function main() {
     console.log("  1. Review the changes");
     console.log("  2. Run: pnpm install");
     console.log("  3. Run: pnpm run start");
-    console.log("  4. (Optional) Delete the /scripts directory");
+
+    if (isPrivate) {
+      console.log("\n  Private Repository Setup:");
+      console.log("  4. Create a GitHub Personal Access Token (PAT):");
+      console.log("     - Go to: https://github.com/settings/tokens?type=beta");
+      console.log("     - Create a fine-grained token with:");
+      console.log("       • Repository access: Only select repositories");
+      console.log("       • Permissions: Contents (Read/Write), Metadata (Read)");
+      console.log("  5. Add the token as a repository secret:");
+      console.log("     - Go to: https://github.com/" + githubOwner + "/" + projectName + "/settings/secrets/actions");
+      console.log("     - Name: GH_RELEASE_TOKEN");
+      console.log("     - Value: Your PAT from step 4");
+    }
+
+    console.log("\n  (Optional) Delete the /scripts directory");
     console.log("");
   } catch (error) {
     console.error("\nError during initialization:", error.message);
