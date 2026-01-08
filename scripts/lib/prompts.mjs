@@ -24,7 +24,8 @@ const REPO_VISIBILITY_CHOICES = [
   {
     name: "Public",
     value: "public",
-    description: "Public GitHub repository (uses GITHUB_TOKEN for auto-updates)",
+    description:
+      "Public GitHub repository (uses GITHUB_TOKEN for auto-updates)",
   },
   {
     name: "Private",

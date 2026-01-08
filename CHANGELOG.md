@@ -4,7 +4,7 @@
 
 ### Bug Fixes
 
-* workflow artifact upload duplicates ([4031e96](https://github.com/cperuffo3/electron-starter/commit/4031e96ea5cd684dcc296b9a3e94e80d95ce1ba2))
+- workflow artifact upload duplicates ([4031e96](https://github.com/cperuffo3/electron-starter/commit/4031e96ea5cd684dcc296b9a3e94e80d95ce1ba2))
 
 ## [0.2.1](https://github.com/cperuffo3/electron-starter/compare/v0.2.0...v0.2.1) (2026-01-08)
 

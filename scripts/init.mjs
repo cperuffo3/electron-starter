@@ -219,9 +219,17 @@ async function main() {
       console.log("     - Go to: https://github.com/settings/tokens?type=beta");
       console.log("     - Create a fine-grained token with:");
       console.log("       • Repository access: Only select repositories");
-      console.log("       • Permissions: Contents (Read/Write), Metadata (Read)");
+      console.log(
+        "       • Permissions: Contents (Read/Write), Metadata (Read)",
+      );
       console.log("  5. Add the token as a repository secret:");
-      console.log("     - Go to: https://github.com/" + githubOwner + "/" + projectName + "/settings/secrets/actions");
+      console.log(
+        "     - Go to: https://github.com/" +
+          githubOwner +
+          "/" +
+          projectName +
+          "/settings/secrets/actions",
+      );
       console.log("     - Name: GH_RELEASE_TOKEN");
       console.log("     - Value: Your PAT from step 4");
     }
