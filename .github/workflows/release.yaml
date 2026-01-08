@@ -96,7 +96,7 @@ jobs:
           echo "Before cleanup:"
           find artifacts -type f
 
-          # Remove all .blockmap files (all variations)
+          # Remove all blockmap variations
           find artifacts -name "*.blockmap" -type f -delete
           find artifacts -name "*blockmap" -type f -delete
           find artifacts -name "*.blockmap.*" -type f -delete
@@ -106,7 +106,6 @@ jobs:
           find artifacts -name "*.*.*.dmg" -type f -delete
           find artifacts -name "*.*.*.deb" -type f -delete
           find artifacts -name "*.*.*.rpm" -type f -delete
-          find artifacts -name "*.*.*.7z" -type f -delete
 
           echo "After cleanup:"
           find artifacts -type f
@@ -134,32 +133,30 @@ jobs:
           # Create a clean directory for release files
           mkdir -p release-files
 
-          echo "Copying files to release directory..."
+          echo "Copying release files..."
 
-          # Copy installers
-          find artifacts -type f -name "*.exe" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
-          find artifacts -type f -name "*.dmg" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
-          find artifacts -type f -name "*.deb" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
-          find artifacts -type f -name "*.rpm" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+          # Windows installers (exclude unpacked, differential support is built into NSIS exe)
+          find artifacts -name "*-Windows-Setup.exe" ! -name "*blockmap*" -type f -exec sh -c 'echo "  -> $(basename "$1")"; cp -v "$1" release-files/' _ {} \;
 
-          # Copy differential update files (Windows only)
-          find artifacts -type f -name "*.nsis.7z" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+          # macOS installers (exclude unpacked directories)
+          find artifacts -name "*.dmg" ! -name "*blockmap*" ! -path "*/mac-*/*" -type f -exec sh -c 'echo "  -> $(basename "$1")"; cp -v "$1" release-files/' _ {} \;
 
-          # Copy update metadata files
-          find artifacts -type f -name "latest*.yml" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+          # Linux packages
+          find artifacts -name "*.deb" ! -name "*blockmap*" -type f -exec sh -c 'echo "  -> $(basename "$1")"; cp -v "$1" release-files/' _ {} \;
+          find artifacts -name "*.rpm" ! -name "*blockmap*" -type f -exec sh -c 'echo "  -> $(basename "$1")"; cp -v "$1" release-files/' _ {} \;
+
+          # Update metadata files (root level only)
+          find artifacts -maxdepth 2 -name "latest*.yml" ! -name "*blockmap*" -type f -exec sh -c 'echo "  -> $(basename "$1")"; cp -v "$1" release-files/' _ {} \;
 
           echo ""
           echo "Files to be released:"
           ls -lh release-files/
 
-          echo ""
-          echo "Verifying no blockmap files:"
-          if find release-files/ -name "*blockmap*" | grep -q .; then
-            echo "ERROR: Blockmap files found in release directory!"
-            find release-files/ -name "*blockmap*"
+          # Verify no blockmaps made it through
+          if find release-files -name "*blockmap*" -type f | grep -q .; then
+            echo "ERROR: Blockmap files found in release-files!"
+            find release-files -name "*blockmap*" -type f
             exit 1
-          else
-            echo "✓ No blockmap files found"
           fi
         shell: bash
 
