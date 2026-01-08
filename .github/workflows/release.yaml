@@ -106,6 +106,17 @@ jobs:
           name: release-linux
           path: artifacts/linux
 
+      - name: Remove blockmap files and duplicates
+        run: |
+          # Remove all .blockmap files
+          find artifacts -name "*.blockmap" -type f -delete
+          # Keep only dash-separated filenames, remove dot-separated duplicates
+          find artifacts -name "*.*.*.exe" -type f -delete
+          find artifacts -name "*.*.*.dmg" -type f -delete
+          find artifacts -name "*.*.*.deb" -type f -delete
+          find artifacts -name "*.*.*.rpm" -type f -delete
+        shell: bash
+
       - name: Get version from tag
         id: version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
@@ -146,13 +157,10 @@ jobs:
           draft: false
           prerelease: ${{ contains(steps.version.outputs.version, '-') }}
           files: |
-            artifacts/win/**/*-Windows-Setup.exe
-            artifacts/mac/**/*-macOS-x64.dmg
-            artifacts/mac/**/*-macOS-arm64.dmg
-            artifacts/linux/**/*-Linux-amd64.deb
-            artifacts/linux/**/*-Linux-x86_64.rpm
-            artifacts/win/**/latest.yml
-            artifacts/mac/**/latest-mac.yml
-            artifacts/linux/**/latest-linux.yml
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.deb
+            artifacts/**/*.rpm
+            artifacts/**/latest*.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
