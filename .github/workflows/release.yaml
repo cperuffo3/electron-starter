@@ -43,22 +43,13 @@ jobs:
       - name: Create .env file
         run: cp .env.example .env
 
-      # For public repos: Use GITHUB_TOKEN (workflow token)
+      # IMPORTANT: For private repos, electron-updater needs a long-lived PAT, not GITHUB_TOKEN
+      # Create a GitHub PAT with: Contents (Read), Metadata (Read)
+      # Add it as a repository secret named GH_RELEASE_TOKEN
       - name: Create update-config.json
         run: |
-          echo '{"token":"${{ secrets.GITHUB_TOKEN }}"}' > update-config.json
+          echo '{"token":"${{ secrets.GH_RELEASE_TOKEN }}"}' > update-config.json
         shell: bash
-
-      # For private repos: Uncomment below and comment out the step above
-      # You'll need to create a GitHub Personal Access Token (PAT) with:
-      # - Permissions: Contents (Read), Metadata (Read)
-      # - Add it as a repository secret named GH_RELEASE_TOKEN
-      # - The PAT must not expire (or have a long expiration)
-      # - This is required because secrets.GITHUB_TOKEN expires after the workflow
-      # - name: Create update-config.json (Private Repo)
-      #   run: |
-      #     echo '{"token":"${{ secrets.GH_RELEASE_TOKEN }}"}' > update-config.json
-      #   shell: bash
 
       - name: Build and Make
         run: pnpm run make
@@ -69,13 +60,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.platform }}
-          path: |
-            out/make/**/*
-            out/*.exe
-            out/*.zip
-            out/*.dmg
-            out/*.deb
-            out/*.rpm
+          path: out/**/*
           retention-days: 1
 
   release:
@@ -108,13 +93,23 @@ jobs:
 
       - name: Remove blockmap files and duplicates
         run: |
-          # Remove all .blockmap files
+          echo "Before cleanup:"
+          find artifacts -type f
+
+          # Remove all .blockmap files (all variations)
           find artifacts -name "*.blockmap" -type f -delete
+          find artifacts -name "*blockmap" -type f -delete
+          find artifacts -name "*.blockmap.*" -type f -delete
+
           # Keep only dash-separated filenames, remove dot-separated duplicates
           find artifacts -name "*.*.*.exe" -type f -delete
           find artifacts -name "*.*.*.dmg" -type f -delete
           find artifacts -name "*.*.*.deb" -type f -delete
           find artifacts -name "*.*.*.rpm" -type f -delete
+          find artifacts -name "*.*.*.7z" -type f -delete
+
+          echo "After cleanup:"
+          find artifacts -type f
         shell: bash
 
       - name: Get version from tag
@@ -133,6 +128,40 @@ jobs:
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Prepare release files
+        run: |
+          # Create a clean directory for release files
+          mkdir -p release-files
+
+          echo "Copying files to release directory..."
+
+          # Copy installers
+          find artifacts -type f -name "*.exe" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+          find artifacts -type f -name "*.dmg" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+          find artifacts -type f -name "*.deb" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+          find artifacts -type f -name "*.rpm" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+
+          # Copy differential update files (Windows only)
+          find artifacts -type f -name "*.nsis.7z" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+
+          # Copy update metadata files
+          find artifacts -type f -name "latest*.yml" ! -name "*blockmap*" -exec cp -v {} release-files/ \;
+
+          echo ""
+          echo "Files to be released:"
+          ls -lh release-files/
+
+          echo ""
+          echo "Verifying no blockmap files:"
+          if find release-files/ -name "*blockmap*" | grep -q .; then
+            echo "ERROR: Blockmap files found in release directory!"
+            find release-files/ -name "*blockmap*"
+            exit 1
+          else
+            echo "✓ No blockmap files found"
+          fi
+        shell: bash
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -156,11 +185,6 @@ jobs:
             *Full changelog: CHANGELOG.md*
           draft: false
           prerelease: ${{ contains(steps.version.outputs.version, '-') }}
-          files: |
-            artifacts/**/*.exe
-            artifacts/**/*.dmg
-            artifacts/**/*.deb
-            artifacts/**/*.rpm
-            artifacts/**/latest*.yml
+          files: release-files/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

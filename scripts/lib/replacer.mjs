@@ -319,23 +319,17 @@ export async function updateReleaseWorkflow(rootDir, config) {
     let content = await fs.readFile(workflowPath, "utf-8");
 
     // Update update-config.json creation based on repo visibility
-    if (config.isPrivate) {
-      // Comment out public repo step, uncomment private repo step
+    if (!config.isPrivate) {
+      // For public repos, use GITHUB_TOKEN instead of GH_RELEASE_TOKEN
       content = content.replace(
-        /( {6}# For public repos.*\n {6}- name: Create update-config\.json\n {8}run: \|\n {10}echo '\{"token":"\$\{\{ secrets\.GITHUB_TOKEN \}\}"\}' > update-config\.json\n {8}shell: bash\n)/,
-        (match) =>
-          match
-            .split("\n")
-            .map((line) => `# ${line}`)
-            .join("\n") + "\n",
+        /echo '\{"token":"\$\{\{ secrets\.GH_RELEASE_TOKEN \}\}"\}' > update-config\.json/,
+        'echo \'{"token":"${{ secrets.GITHUB_TOKEN }}"}\'  > update-config.json',
       );
+
+      // Update the comment to reflect public repo usage
       content = content.replace(
-        /( {6}# For private repos:.*\n(?:.*\n)*? {6}# - name: Create update-config\.json \(Private Repo\)\n {6}# {3}run: \|\n {6}# {5}echo '\{"token":"\$\{\{ secrets\.GH_RELEASE_TOKEN \}\}"\}' > update-config\.json\n {6}# {3}shell: bash\n)/,
-        (match) =>
-          match
-            .split("\n")
-            .map((line) => line.replace(/^( {6})# /, "$1"))
-            .join("\n"),
+        /# IMPORTANT: For private repos, electron-updater needs a long-lived PAT, not GITHUB_TOKEN\n {6}# Create a GitHub PAT with: Contents \(Read\), Metadata \(Read\)\n {6}# Add it as a repository secret named GH_RELEASE_TOKEN/,
+        "# For public repos: Use GITHUB_TOKEN (workflow token)\n      # For private repos: Use GH_RELEASE_TOKEN (long-lived PAT)\n      # Create a GitHub PAT with: Contents (Read), Metadata (Read)",
       );
     }
 
@@ -358,11 +352,13 @@ export async function updateReleaseWorkflow(rootDir, config) {
       `$1${matrixItems}\n$3`,
     );
 
-    // Update artifact download and release file upload sections
+    // Update artifact download sections
     const artifactDownloads = config.platforms
       .map((p) => {
         const platform = platformMap[p].platform;
-        return `      - name: Download ${p === "macos" ? "macOS" : p.charAt(0).toUpperCase() + p.slice(1)} artifacts
+        const platformName =
+          p === "macos" ? "macOS" : p.charAt(0).toUpperCase() + p.slice(1);
+        return `      - name: Download ${platformName} artifacts
         uses: actions/download-artifact@v4
         with:
           name: release-${platform}
@@ -371,50 +367,8 @@ export async function updateReleaseWorkflow(rootDir, config) {
       .join("\n\n");
 
     content = content.replace(
-      /( {2}release:\n(?:.*\n)*? {6}- name: Download Windows artifacts\n(?:.*\n)*? {10}path: artifacts\/linux\n)/,
-      (match) => {
-        const beforeDownload = match.substring(
-          0,
-          match.indexOf("- name: Download Windows"),
-        );
-        return beforeDownload + artifactDownloads + "\n";
-      },
-    );
-
-    // Update release files based on platforms
-    const releaseFiles = [];
-    if (config.platforms.includes("windows")) {
-      releaseFiles.push("artifacts/win/**/*-Windows-Setup.exe");
-    }
-    if (config.platforms.includes("macos")) {
-      releaseFiles.push(
-        "artifacts/mac/**/*-macOS-x64.dmg",
-        "artifacts/mac/**/*-macOS-arm64.dmg",
-      );
-    }
-    if (config.platforms.includes("linux")) {
-      releaseFiles.push(
-        "artifacts/linux/**/*-Linux-amd64.deb",
-        "artifacts/linux/**/*-Linux-x86_64.rpm",
-      );
-    }
-
-    // Add latest.yml files
-    config.platforms.forEach((p) => {
-      const platform = platformMap[p].platform;
-      const suffix =
-        platform === "mac"
-          ? "latest-mac.yml"
-          : platform === "linux"
-            ? "latest-linux.yml"
-            : "latest.yml";
-      releaseFiles.push(`artifacts/${platform}/**/${suffix}`);
-    });
-
-    const filesContent = releaseFiles.map((f) => `            ${f}`).join("\n");
-    content = content.replace(
-      /( {10}files: \|\n)((?:.*\n)*?)( {8}env:)/,
-      `$1${filesContent}\n$3`,
+      /( {6}- name: Download Windows artifacts\n(?:.*\n)*? {10}path: artifacts\/linux\n)/,
+      artifactDownloads + "\n",
     );
 
     // Update download instructions in release body

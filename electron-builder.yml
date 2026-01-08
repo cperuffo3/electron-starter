@@ -67,6 +67,10 @@ nsis:
   installerIcon: assets/icons/icon.ico
   uninstallerIcon: assets/icons/icon.ico
   installerHeaderIcon: assets/icons/icon.ico
+  differentialPackage: true
+  # Silent updates (install on app quit without user interaction)
+  allowElevation: true
+  runAfterFinish: false
 
 # macOS configuration
 mac:

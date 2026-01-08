@@ -139,6 +139,13 @@ function setupAutoUpdater() {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
 
+  // Make updates silent (Windows: no elevation dialog, install on quit)
+  if (process.platform === "win32") {
+    autoUpdater.allowDowngrade = false;
+    // Use silent install on Windows
+    (autoUpdater as any).forceDevUpdateConfig = false;
+  }
+
   // Forward update events to renderer
   autoUpdater.on("checking-for-update", () => {
     console.log("[AutoUpdater] Checking for updates...");
