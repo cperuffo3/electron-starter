@@ -34,7 +34,10 @@
           { "type": "test", "hidden": true }
         ]
       },
-      "infile": "CHANGELOG.md"
+      "infile": "CHANGELOG.md",
+      "writerOpts": {
+        "commitPartial": "- {{header}}\n"
+      }
     }
   }
 }
