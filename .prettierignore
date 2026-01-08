@@ -4,3 +4,8 @@
 /.vite
 README.md
 /src/routeTree.gen.ts
+
+# Lock files should not be formatted
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
