@@ -71,6 +71,8 @@ nsis:
   # Silent updates (install on app quit without user interaction)
   allowElevation: true
   runAfterFinish: false
+  # Update installer runs silently
+  displayLanguageSelector: false
 
 # macOS configuration
 mac:

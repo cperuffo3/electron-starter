@@ -142,8 +142,6 @@ function setupAutoUpdater() {
   // Make updates silent (Windows: no elevation dialog, install on quit)
   if (process.platform === "win32") {
     autoUpdater.allowDowngrade = false;
-    // Use silent install on Windows
-    (autoUpdater as any).forceDevUpdateConfig = false;
   }
 
   // Forward update events to renderer
@@ -168,6 +166,9 @@ function setupAutoUpdater() {
   autoUpdater.on("update-downloaded", (info) => {
     console.log("[AutoUpdater] Update downloaded:", info.version);
     ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.DOWNLOADED, info);
+
+    // On Windows, the update will install silently when the app quits
+    // due to autoInstallOnAppQuit: true
   });
 
   autoUpdater.on("download-progress", (progress) => {
