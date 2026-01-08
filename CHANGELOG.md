@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.0](https://github.com/cperuffo3/electron-starter/compare/v0.3.1...v0.4.0) (2026-01-08)
+
+### Features
+
+- feat: silent updates and workflow improvements
+
+### Bug Fixes
+
+- fix: lint errors
+
 ## [0.3.1](https://github.com/cperuffo3/electron-starter/compare/v0.3.0...v0.3.1) (2026-01-08)
 
 ### Bug Fixes
