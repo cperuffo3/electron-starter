@@ -7,6 +7,7 @@ This document summarizes all changes made to migrate the Electron application fr
 ## 1. Build System Migration
 
 ### Removed (Electron Forge)
+
 - Deleted `forge.config.ts` (87 lines) - Forge configuration
 - Deleted `forge.env.d.ts` - Forge type declarations
 - Deleted `vite.main.config.mts` - Separate main process config
@@ -14,6 +15,7 @@ This document summarizes all changes made to migrate the Electron application fr
 - Deleted `vite.renderer.config.mts` - Separate renderer config
 
 ### Added (electron-vite + electron-builder)
+
 - Created `electron-builder.yml` - Platform-specific packaging config
 - Created `electron.vite.config.ts` - Unified build configuration
 
@@ -24,6 +26,7 @@ This document summarizes all changes made to migrate the Electron application fr
 ### package.json Changes
 
 **Changed `main` field:**
+
 ```json
 // OLD
 "main": ".vite/build/main.js"
@@ -33,6 +36,7 @@ This document summarizes all changes made to migrate the Electron application fr
 ```
 
 **Removed packages:**
+
 - All `@electron-forge/*` packages:
   - `@electron-forge/cli`
   - `@electron-forge/maker-deb`
@@ -46,11 +50,13 @@ This document summarizes all changes made to migrate the Electron application fr
   - `@electron-forge/shared-types`
 
 **Added packages:**
+
 - `electron-builder` v26.4.0
 - `electron-vite` v5.0.0
 - `vite-plugin-static-copy` v3.1.4
 
 **Script changes:**
+
 ```json
 {
   "dev": "electron-vite dev",
@@ -66,6 +72,7 @@ This document summarizes all changes made to migrate the Electron application fr
 ```
 
 **Removed from package.json:**
+
 - `build` field configuration (moved to `electron-builder.yml`)
 
 ---
@@ -75,11 +82,13 @@ This document summarizes all changes made to migrate the Electron application fr
 ### Environment Loading
 
 **Changed from:**
+
 ```typescript
 import "dotenv/config";
 ```
 
 **To:**
+
 ```typescript
 import { config } from "dotenv";
 import { existsSync } from "fs";
@@ -110,6 +119,7 @@ if (!envLoaded && !app.isPackaged) {
 ### Update Token Handling
 
 **Changed from:**
+
 ```typescript
 if (process.env.GH_TOKEN) {
   return process.env.GH_TOKEN;
@@ -117,6 +127,7 @@ if (process.env.GH_TOKEN) {
 ```
 
 **To:**
+
 ```typescript
 // Check both GH_TOKEN and GITHUB_TOKEN for flexibility
 const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
@@ -128,6 +139,7 @@ if (token) {
 ### Path Changes for electron-vite
 
 **Preload script path:**
+
 ```typescript
 // OLD
 const preload = path.join(__dirname, "preload.js");
@@ -137,6 +149,7 @@ const preload = path.join(__dirname, "../preload/index.js");
 ```
 
 **Window loading:**
+
 ```typescript
 // OLD
 if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -162,6 +175,7 @@ if (isDev) {
 ## 4. Type Declarations (src/types.d.ts)
 
 **Replaced Forge-specific globals:**
+
 ```typescript
 // OLD (Forge):
 declare global {
@@ -185,6 +199,7 @@ declare global {
 ## 5. TypeScript Configuration (tsconfig.json)
 
 **Changed includes:**
+
 ```json
 // OLD
 "include": [
@@ -209,6 +224,7 @@ declare global {
 ## 6. Git Configuration (.gitignore)
 
 **Updated comments:**
+
 ```diff
 -# Vite
 +# Vite & electron-vite
@@ -225,6 +241,7 @@ declare global {
 ## 7. Documentation Updates
 
 ### Files Updated
+
 - `CLAUDE.md`
 - `README.md`
 - `.context/STARTER_GUIDE.md`
@@ -232,15 +249,17 @@ declare global {
 ### Changes Made
 
 **1. Tech stack tables:**
+
 ```markdown
-| Layer     | Technology                            |
-| --------- | ------------------------------------- |
-| Framework | Electron 39 + electron-vite           |
-| Build     | Vite 7 (via electron-vite)            |
-| Packaging | electron-builder                      |
+| Layer     | Technology                  |
+| --------- | --------------------------- |
+| Framework | Electron 39 + electron-vite |
+| Build     | Vite 7 (via electron-vite)  |
+| Packaging | electron-builder            |
 ```
 
 **2. Commands section:**
+
 ```bash
 # Development
 pnpm run dev                # Run app in dev mode (hot reload)
@@ -258,15 +277,18 @@ pnpm run make:linux         # Linux only (DEB, RPM)
 ```
 
 **3. Build configuration section (NEW):**
+
 ```markdown
 ### Build Configuration
 
 The project uses **electron-vite** for building with a unified `electron.vite.config.ts` configuration that handles:
+
 - Main process bundling
 - Preload script bundling
 - Renderer process bundling (React, TanStack Router, Tailwind)
 
 Packaging is handled by **electron-builder** with configuration in `package.json` and `electron-builder.yml`:
+
 - ASAR packaging with integrity validation
 - Electron Fuses for security hardening
 - Platform-specific targets: WiX (Windows), ZIP (macOS), DEB/RPM (Linux)
@@ -274,12 +296,14 @@ Packaging is handled by **electron-builder** with configuration in `package.json
 ```
 
 **4. Auto-updates section:**
+
 ```markdown
 - Dev: Reads `GITHUB_TOKEN` or `GH_TOKEN` from `.env`
 - Production: Uses bundled `update-config.json` (created by CI)
 ```
 
 **5. File structure updates:**
+
 - Changed output paths from `.vite/build/` to `dist/main/`, `dist/preload/`, `dist/renderer/`
 
 ---
@@ -287,6 +311,7 @@ Packaging is handled by **electron-builder** with configuration in `package.json
 ## 8. CI/CD Changes (.github/workflows/release.yaml)
 
 **Added Linux build matrix:**
+
 ```yaml
 matrix:
   include:
@@ -299,6 +324,7 @@ matrix:
 ```
 
 **Updated artifact paths:**
+
 ```yaml
 - name: Upload artifacts
   uses: actions/upload-artifact@v4
@@ -315,6 +341,7 @@ matrix:
 ```
 
 **Added Linux artifact download:**
+
 ```yaml
 - name: Download Linux artifacts
   uses: actions/download-artifact@v4
@@ -324,6 +351,7 @@ matrix:
 ```
 
 **Updated release asset patterns:**
+
 ```yaml
 files: |
   artifacts/**/*.exe
@@ -341,6 +369,7 @@ files: |
 ## 9. Environment Variable Documentation (.env.example)
 
 **Added note:**
+
 ```bash
 # You can use either GITHUB_TOKEN or GH_TOKEN (both are supported)
 # GITHUB_TOKEN=your-github-personal-access-token
@@ -352,6 +381,7 @@ files: |
 ## 10. Claude Settings (.claude/settings.local.json)
 
 **Added to allowed commands:**
+
 ```json
 "allow": [
   "Bash(npx:*)",
@@ -364,6 +394,7 @@ files: |
 ## Key Migration Points
 
 ### 1. Build Output Structure
+
 ```
 OLD (Forge):
 .vite/build/main.js
@@ -377,22 +408,27 @@ dist/renderer/index.html
 ```
 
 ### 2. Configuration Consolidation
+
 - **Before:** 3 separate Vite configs + `forge.config.ts` (4 files)
 - **After:** Single `electron.vite.config.ts` + `electron-builder.yml` (2 files)
 
 ### 3. Dev Server Port
+
 - **Before:** Dynamic port via `MAIN_WINDOW_VITE_DEV_SERVER_URL`
 - **After:** Fixed `localhost:5173` (electron-vite default)
 
 ### 4. Token Flexibility
+
 - Now supports both `GH_TOKEN` and `GITHUB_TOKEN` environment variables
 - Added fallback logic for multiple `.env` file locations
 
 ### 5. Multi-Platform Support
+
 - Explicit Windows (WiX MSI), macOS (ZIP), and Linux (DEB/RPM) targets
 - Platform-specific make commands: `make:win`, `make:mac`, `make:linux`
 
 ### 6. Package Output
+
 ```
 out/make/
 ├── wix/x64/*.msi          (Windows)

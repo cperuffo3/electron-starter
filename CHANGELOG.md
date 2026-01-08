@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0](https://github.com/cperuffo3/electron-starter/compare/v0.1.4...v0.2.0) (2026-01-08)
+
+### Features
+
+* change to use electron-builder ([2313bbf](https://github.com/cperuffo3/electron-starter/commit/2313bbfee41beee72239b7ffeb2be021f846b22a))
+
 ## [0.1.4](https://github.com/cperuffo3/electron-starter/compare/v0.1.3...v0.1.4) (2026-01-08)
 
 ### Bug Fixes
