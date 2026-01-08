@@ -46,6 +46,10 @@ publish:
   repo: electron-starter
   private: true
 
+# Artifact naming pattern for user downloads
+# ${productName}-${version}-${os}-${arch}.${ext}
+artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
+
 # Windows configuration
 win:
   target:
@@ -53,6 +57,7 @@ win:
       arch:
         - x64
   icon: assets/icons/icon.ico
+  artifactName: "${productName}-${version}-Windows-Setup.${ext}"
 
 # NSIS installer configuration
 nsis:
@@ -61,6 +66,10 @@ nsis:
   createDesktopShortcut: always
   createStartMenuShortcut: true
   perMachine: false
+  artifactName: "${productName}-${version}-Windows-Setup.${ext}"
+  installerIcon: assets/icons/icon.ico
+  uninstallerIcon: assets/icons/icon.ico
+  installerHeaderIcon: assets/icons/icon.ico
 
 # macOS configuration
 mac:
@@ -71,6 +80,7 @@ mac:
         - arm64
   icon: assets/icons/icon.icns
   category: public.app-category.developer-tools
+  artifactName: "${productName}-${version}-macOS-${arch}.${ext}"
 
 # Linux configuration
 linux:
@@ -79,6 +89,7 @@ linux:
     - rpm
   icon: assets/icons/icon.png
   category: Development
+  artifactName: "${productName}-${version}-Linux-${arch}.${ext}"
 
 # DEB-specific options (matches Forge MakerDeb)
 deb:

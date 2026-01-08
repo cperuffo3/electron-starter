@@ -43,10 +43,22 @@ jobs:
       - name: Create .env file
         run: cp .env.example .env
 
+      # For public repos: Use GITHUB_TOKEN (workflow token)
       - name: Create update-config.json
         run: |
           echo '{"token":"${{ secrets.GITHUB_TOKEN }}"}' > update-config.json
         shell: bash
+
+      # For private repos: Uncomment below and comment out the step above
+      # You'll need to create a GitHub Personal Access Token (PAT) with:
+      # - Permissions: Contents (Read), Metadata (Read)
+      # - Add it as a repository secret named GH_RELEASE_TOKEN
+      # - The PAT must not expire (or have a long expiration)
+      # - This is required because secrets.GITHUB_TOKEN expires after the workflow
+      # - name: Create update-config.json (Private Repo)
+      #   run: |
+      #     echo '{"token":"${{ secrets.GH_RELEASE_TOKEN }}"}' > update-config.json
+      #   shell: bash
 
       - name: Build and Make
         run: pnpm run make
@@ -121,17 +133,23 @@ jobs:
             ${{ steps.changelog.outputs.notes }}
 
             ---
+
+            ## Downloads
+
+            **Windows:** Download `Electron-Starter-*-Windows-Setup.exe`
+            **macOS (Intel):** Download `Electron-Starter-*-macOS-x64.zip`
+            **macOS (Apple Silicon):** Download `Electron-Starter-*-macOS-arm64.zip`
+            **Linux (Debian/Ubuntu):** Download `Electron-Starter-*-Linux-*.deb`
+            **Linux (Fedora/RHEL):** Download `Electron-Starter-*-Linux-*.rpm`
+
             *Full changelog: CHANGELOG.md*
           draft: false
           prerelease: ${{ contains(steps.version.outputs.version, '-') }}
           files: |
-            artifacts/**/*.exe
-            artifacts/**/*.zip
-            artifacts/**/*.dmg
-            artifacts/**/*.deb
-            artifacts/**/*.rpm
-            artifacts/**/*.AppImage
+            artifacts/**/*Windows-Setup.exe
+            artifacts/**/*macOS*.zip
+            artifacts/**/*Linux*.deb
+            artifacts/**/*Linux*.rpm
             artifacts/**/*.yml
-            artifacts/**/*.blockmap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
