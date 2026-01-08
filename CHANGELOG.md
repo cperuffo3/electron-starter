@@ -4,9 +4,9 @@
 
 ### Bug Fixes
 
-* gitattributes for dependabot ([2e561f8](https://github.com/cperuffo3/electron-starter/commit/2e561f8ba78d5a04d59d1996bf0f9892438e815e))
-* pnpm-lock formatting issues ([264c7ba](https://github.com/cperuffo3/electron-starter/commit/264c7ba0b9951d1884347dfc2c135a7a6b0c4402))
-* release-it config for changelogs ([3c5796f](https://github.com/cperuffo3/electron-starter/commit/3c5796ff42ed45756611919929ee070c98bfe6f5))
+- gitattributes for dependabot ([2e561f8](https://github.com/cperuffo3/electron-starter/commit/2e561f8ba78d5a04d59d1996bf0f9892438e815e))
+- pnpm-lock formatting issues ([264c7ba](https://github.com/cperuffo3/electron-starter/commit/264c7ba0b9951d1884347dfc2c135a7a6b0c4402))
+- release-it config for changelogs ([3c5796f](https://github.com/cperuffo3/electron-starter/commit/3c5796ff42ed45756611919929ee070c98bfe6f5))
 
 ## [0.1.3](https://github.com/cperuffo3/electron-starter/compare/v0.1.2...v0.1.3) (2026-01-08)
 

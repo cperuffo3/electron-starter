@@ -24,7 +24,8 @@ This is a modern Electron desktop application built with:
 | Layer     | Technology                 | Purpose                                     |
 | --------- | -------------------------- | ------------------------------------------- |
 | Framework | Electron 39                | Desktop app shell                           |
-| Build     | Electron Forge + Vite      | Packaging and bundling                      |
+| Build     | electron-vite + Vite 7     | Unified build system for all processes      |
+| Packaging | electron-builder           | Multi-platform installers with ASAR/fuses   |
 | UI        | React 19 + TypeScript      | Component-based UI                          |
 | Styling   | Tailwind CSS 4 + shadcn/ui | Utility-first CSS with pre-built components |
 | Routing   | TanStack Router            | Type-safe file-based routing                |
@@ -644,15 +645,16 @@ For private GitHub repositories, you need to configure a GitHub token:
 Create a `.env` file (copy from `.env.example`) and add:
 
 ```bash
-GH_TOKEN=github_pat_11AU47ZII0...your_token_here
+GITHUB_TOKEN=github_pat_11AU47ZII0...your_token_here
+# or use GH_TOKEN (both are supported)
 ```
 
 #### 3. How It Works
 
-- **Development**: App reads `GH_TOKEN` from `.env` file
+- **Development**: App reads `GITHUB_TOKEN` or `GH_TOKEN` from `.env` file
 - **Production (CI/CD)**:
   - GitHub Actions creates `update-config.json` with `GITHUB_TOKEN`
-  - Electron Forge bundles it via `extraResource`
+  - electron-builder bundles it via `extraResources`
   - App reads token from resources folder at runtime
   - electron-updater checks for updates using the bundled token
 
@@ -662,8 +664,10 @@ The token handling is implemented in `src/main.ts`:
 // Get GitHub token for private repo updates
 function getUpdateToken(): string {
   // Development: use .env file (loaded by dotenv)
-  if (process.env.GH_TOKEN) {
-    return process.env.GH_TOKEN;
+  // Check both GH_TOKEN and GITHUB_TOKEN for flexibility
+  const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+  if (token) {
+    return token;
   }
 
   // Production: use bundled config file (created during build/CI)
@@ -702,7 +706,9 @@ await ipc.client.updater.installUpdate();
 ### Development
 
 ```bash
-pnpm run start          # Start with hot reload
+pnpm run dev            # Start with hot reload
+pnpm run start          # Alias for dev
+pnpm run build          # Build for production
 ```
 
 ### Code Quality
@@ -715,12 +721,35 @@ pnpm run format         # Prettier
 ### Building
 
 ```bash
-pnpm run package        # Package for current platform
+pnpm run package        # Package without creating installer
 pnpm run make           # Create distributable installers
+pnpm run make:win       # Windows only (WiX MSI)
+pnpm run make:mac       # macOS only (ZIP)
+pnpm run make:linux     # Linux only (DEB, RPM)
 ```
 
-**Note**: This starter uses WiX for Windows installers (instead of Squirrel.Windows). This provides:
+### Build Configuration
 
+The project uses **electron-vite** for building with a unified configuration in `electron.vite.config.ts`:
+
+- **Main process**: Bundled from `src/main.ts` to `dist/main/index.js`
+- **Preload script**: Bundled from `src/preload.ts` to `dist/preload/index.js`
+- **Renderer process**: Bundled from `index.html` to `dist/renderer/` with React, TanStack Router, and Tailwind
+
+Packaging is handled by **electron-builder** with configuration in:
+
+- `package.json` → `build` field (ASAR, files, fuses, publish settings)
+- `electron-builder.yml` → Platform-specific targets and extra resources
+
+**Security Features**:
+
+- ✅ ASAR packaging with integrity validation
+- ✅ Electron Fuses (runAsNode disabled, cookie encryption, etc.)
+- ✅ Context isolation and sandboxing
+
+**Windows Installer**:
+
+- Uses WiX (not Squirrel.Windows) for better reliability
 - ✅ No ENOENT errors (no dependency on app-update.yml)
 - ✅ Proper custom icon support
 - ✅ Single update mechanism via electron-updater

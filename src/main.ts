@@ -1,6 +1,29 @@
-import "dotenv/config";
+import { config } from "dotenv";
 import { app, BrowserWindow } from "electron";
 import path from "path";
+import { existsSync } from "fs";
+
+// Load .env file - try multiple possible locations
+const possibleEnvPaths = [
+  path.join(process.cwd(), ".env"),
+  path.join(__dirname, "../../.env"), // From dist/main back to project root
+  path.join(app.getAppPath(), ".env"),
+];
+
+let envLoaded = false;
+for (const envPath of possibleEnvPaths) {
+  if (existsSync(envPath)) {
+    const result = config({ path: envPath });
+    if (!result.error) {
+      envLoaded = true;
+      break;
+    }
+  }
+}
+
+if (!envLoaded && !app.isPackaged) {
+  console.warn("[Dotenv] No .env file found in development");
+}
 import {
   installExtension,
   REACT_DEVELOPER_TOOLS,
@@ -9,7 +32,7 @@ import { ipcMain } from "electron/main";
 import { autoUpdater } from "electron-updater";
 import { ipcContext } from "@/ipc/context";
 import { IPC_CHANNELS, UPDATE_CHANNELS } from "./constants";
-import { existsSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 
 const inDevelopment = process.env.NODE_ENV === "development";
 const isPortable = !!process.env.PORTABLE_EXECUTABLE_DIR;
@@ -17,8 +40,10 @@ const isPortable = !!process.env.PORTABLE_EXECUTABLE_DIR;
 // Get GitHub token for private repo updates
 function getUpdateToken(): string {
   // Development: use .env file (loaded by dotenv)
-  if (process.env.GH_TOKEN) {
-    return process.env.GH_TOKEN;
+  // Check both GH_TOKEN and GITHUB_TOKEN for flexibility
+  const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+  if (token) {
+    return token;
   }
 
   // Production: use bundled config file (created during build/CI)
@@ -46,7 +71,7 @@ function getIconPath() {
 }
 
 function createWindow() {
-  const preload = path.join(__dirname, "preload.js");
+  const preload = path.join(__dirname, "../preload/index.js");
   const mainWindow = new BrowserWindow({
     width: 1540,
     height: 1080,
@@ -65,12 +90,12 @@ function createWindow() {
   });
   ipcContext.setMainWindow(mainWindow);
 
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  const isDev = !app.isPackaged;
+
+  if (isDev) {
+    mainWindow.loadURL("http://localhost:5173"); // electron-vite default port
   } else {
-    mainWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    );
+    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 
   // Open DevTools in a separate window in development mode

@@ -9,7 +9,8 @@ A modern Electron boilerplate with React, Tailwind CSS 4, and shadcn/ui — desi
 
 | Category | Technologies |
 |----------|-------------|
-| **Framework** | Electron 39, Electron Forge, Vite 7 |
+| **Framework** | Electron 39, electron-vite, electron-builder |
+| **Build** | Vite 7 (via electron-vite) |
 | **UI** | React 19, TypeScript 5.9, Tailwind CSS 4, shadcn/ui |
 | **Routing** | TanStack Router (file-based, fully typed) |
 | **IPC** | oRPC (type-safe RPC over MessagePort) |
@@ -130,7 +131,9 @@ src/
 ### Development
 
 ```bash
-pnpm run start              # Run in development mode
+pnpm run dev                # Run in development mode (hot reload)
+pnpm run start              # Alias for dev
+pnpm run build              # Build for production
 pnpm run lint               # ESLint check and fix
 pnpm run format             # Prettier format
 ```
@@ -138,8 +141,11 @@ pnpm run format             # Prettier format
 ### Build & Package
 
 ```bash
-pnpm run package            # Package for current platform
+pnpm run package            # Package without creating installer
 pnpm run make               # Create distributable installers
+pnpm run make:win           # Windows only (WiX MSI)
+pnpm run make:mac           # macOS only (ZIP)
+pnpm run make:linux         # Linux only (DEB, RPM)
 ```
 
 ### Release
@@ -271,11 +277,12 @@ This starter fully supports auto-updates from **private GitHub repositories**:
 
 3. **Add token to `.env`**:
    ```bash
-   GH_TOKEN=github_pat_YOUR_TOKEN_HERE
+   GITHUB_TOKEN=github_pat_YOUR_TOKEN_HERE
+   # or use GH_TOKEN (both are supported)
    ```
 
 4. **How it works**:
-   - **Development**: Reads `GH_TOKEN` from `.env` file
+   - **Development**: Reads `GITHUB_TOKEN` or `GH_TOKEN` from `.env` file
    - **Production**: Uses `update-config.json` (auto-created by CI with `GITHUB_TOKEN`)
    - **CI/CD**: GitHub Actions bundles token during build process
 

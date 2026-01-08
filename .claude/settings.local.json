@@ -49,7 +49,9 @@
       "LS(**)",
       "Find(**)",
       "Search(**)",
-      "Grep(**)"
+      "Grep(**)",
+      "Bash(npx:*)",
+      "Bash(7z l:*)"
     ],
     "deny": [
       "Bash(git add:*)",

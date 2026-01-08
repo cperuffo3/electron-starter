@@ -18,6 +18,8 @@ jobs:
             platform: win
           - os: macos-latest
             platform: mac
+          - os: ubuntu-latest
+            platform: linux
 
     runs-on: ${{ matrix.os }}
 
@@ -55,7 +57,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.platform }}
-          path: out/make
+          path: |
+            out/make/**/*
+            out/*.exe
+            out/*.zip
+            out/*.dmg
+            out/*.deb
+            out/*.rpm
           retention-days: 1
 
   release:
@@ -79,6 +87,12 @@ jobs:
         with:
           name: release-mac
           path: artifacts/mac
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-linux
+          path: artifacts/linux
 
       - name: Get version from tag
         id: version
@@ -114,7 +128,10 @@ jobs:
             artifacts/**/*.exe
             artifacts/**/*.zip
             artifacts/**/*.dmg
-            artifacts/**/*.nupkg
-            artifacts/**/RELEASES
+            artifacts/**/*.deb
+            artifacts/**/*.rpm
+            artifacts/**/*.AppImage
+            artifacts/**/*.yml
+            artifacts/**/*.blockmap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

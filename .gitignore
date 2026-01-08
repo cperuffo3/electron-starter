@@ -88,11 +88,11 @@ update-config.json
 # Webpack
 .webpack/
 
-# Vite
+# Vite & electron-vite
 .vite/
 dist/
 
-# Electron-Forge
+# Electron Builder
 out/
 /test-results/
 /playwright-report/

@@ -25,8 +25,7 @@
   "include": [
     "src/**/*",
     "./package.json",
-    "./forge.config.ts",
-    "*.mts",
-    "vite.renderer.config.mts"
+    "./electron.vite.config.ts",
+    "*.mts"
   ]
 }

@@ -10,15 +10,22 @@ This file provides quick guidance to Claude Code when working with this reposito
 
 ```bash
 # Development
-pnpm run start              # Run app in dev mode (hot reload)
+pnpm run dev                # Run app in dev mode (hot reload)
+pnpm run start              # Alias for dev
+
+# Build
+pnpm run build              # Build for production
 
 # Code Quality
 pnpm run lint               # ESLint check and fix
 pnpm run format             # Prettier format
 
-# Build & Package
-pnpm run package            # Package for current platform
+# Package & Distribute
+pnpm run package            # Package without creating installer
 pnpm run make               # Create distributable installers
+pnpm run make:win           # Windows only (WiX MSI)
+pnpm run make:mac           # macOS only (ZIP)
+pnpm run make:linux         # Linux only (DEB, RPM)
 
 # Release
 pnpm run release            # Interactive version bump + changelog
@@ -34,8 +41,9 @@ pnpm run bump-shadcn-components  # Update shadcn/ui components
 
 | Layer     | Technology                            |
 | --------- | ------------------------------------- |
-| Framework | Electron 39 + Electron Forge          |
-| Build     | Vite 7                                |
+| Framework | Electron 39 + electron-vite           |
+| Build     | Vite 7 (via electron-vite)            |
+| Packaging | electron-builder                      |
 | UI        | React 19 + TypeScript 5.9             |
 | Styling   | Tailwind CSS 4 + shadcn/ui            |
 | Routing   | TanStack Router (file-based)          |
@@ -119,6 +127,21 @@ import { Button } from "@/components/ui/button";
 import { ipc } from "@/ipc/manager";
 ```
 
+### Build Configuration
+
+The project uses **electron-vite** for building with a unified [electron.vite.config.ts](electron.vite.config.ts) configuration that handles:
+
+- Main process bundling
+- Preload script bundling
+- Renderer process bundling (React, TanStack Router, Tailwind)
+
+Packaging is handled by **electron-builder** with configuration in [package.json](package.json:30-58) and [electron-builder.yml](electron-builder.yml):
+
+- ASAR packaging with integrity validation
+- Electron Fuses for security hardening
+- Platform-specific targets: WiX (Windows), ZIP (macOS), DEB/RPM (Linux)
+- Private GitHub repository auto-updates
+
 ### Auto-Updates & Private Repos
 
 This starter supports auto-updates from **private GitHub repositories**:
@@ -138,10 +161,10 @@ This starter supports auto-updates from **private GitHub repositories**:
 
 2. **Create GitHub token** (Fine-grained PAT):
    - Permissions: Contents (Read/Write), Metadata (Read-only)
-   - Add to `.env`: `GH_TOKEN=github_pat_...`
+   - Add to `.env`: `GITHUB_TOKEN=github_pat_...` or `GH_TOKEN=github_pat_...` (both supported)
 
 3. **How it works**:
-   - Dev: Reads `GH_TOKEN` from `.env`
+   - Dev: Reads `GITHUB_TOKEN` or `GH_TOKEN` from `.env`
    - Production: Uses bundled `update-config.json` (created by CI)
 
 4. **Windows installer**: Uses WiX (not Squirrel) for better icon support and single update mechanism
