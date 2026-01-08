@@ -45,10 +45,8 @@ publish:
   owner: cperuffo3
   repo: electron-starter
   private: true
-
-# Artifact naming pattern for user downloads
-# ${productName}-${version}-${os}-${arch}.${ext}
-artifactName: "${productName}-${version}-${os}-${arch}.${ext}"
+  # Don't publish blockmaps to release (only needed locally for updates)
+  publishAutoUpdate: true
 
 # Windows configuration
 win:
@@ -66,7 +64,6 @@ nsis:
   createDesktopShortcut: always
   createStartMenuShortcut: true
   perMachine: false
-  artifactName: "${productName}-${version}-Windows-Setup.${ext}"
   installerIcon: assets/icons/icon.ico
   uninstallerIcon: assets/icons/icon.ico
   installerHeaderIcon: assets/icons/icon.ico

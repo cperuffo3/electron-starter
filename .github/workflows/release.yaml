@@ -146,10 +146,13 @@ jobs:
           draft: false
           prerelease: ${{ contains(steps.version.outputs.version, '-') }}
           files: |
-            artifacts/**/*Windows-Setup.exe
-            artifacts/**/*macOS*.zip
-            artifacts/**/*Linux*.deb
-            artifacts/**/*Linux*.rpm
-            artifacts/**/*.yml
+            artifacts/win/**/*-Windows-Setup.exe
+            artifacts/mac/**/*-macOS-x64.dmg
+            artifacts/mac/**/*-macOS-arm64.dmg
+            artifacts/linux/**/*-Linux-amd64.deb
+            artifacts/linux/**/*-Linux-x86_64.rpm
+            artifacts/win/**/latest.yml
+            artifacts/mac/**/latest-mac.yml
+            artifacts/linux/**/latest-linux.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
