@@ -9,9 +9,32 @@ import { ipcMain } from "electron/main";
 import { autoUpdater } from "electron-updater";
 import { ipcContext } from "@/ipc/context";
 import { IPC_CHANNELS, UPDATE_CHANNELS } from "./constants";
+import { existsSync, readFileSync } from "fs";
 
 const inDevelopment = process.env.NODE_ENV === "development";
 const isPortable = !!process.env.PORTABLE_EXECUTABLE_DIR;
+
+// Get GitHub token for private repo updates
+function getUpdateToken(): string {
+  // Development: use .env file (loaded by dotenv)
+  if (process.env.GH_TOKEN) {
+    return process.env.GH_TOKEN;
+  }
+
+  // Production: use bundled config file (created during build/CI)
+  // Check in resources directory (where extraResource files are placed)
+  const configPath = path.join(process.resourcesPath, "update-config.json");
+  if (existsSync(configPath)) {
+    try {
+      const config = JSON.parse(readFileSync(configPath, "utf-8"));
+      return config.token || "";
+    } catch (err) {
+      console.error("[AutoUpdater] Failed to read update config:", err);
+    }
+  }
+
+  return "";
+}
 
 function getIconPath() {
   if (inDevelopment) {
@@ -66,6 +89,27 @@ async function installExtensions() {
 }
 
 function setupAutoUpdater() {
+  // Configure updater for private GitHub repo
+  const updateToken = getUpdateToken();
+  console.log(
+    "[AutoUpdater] Token available:",
+    !!updateToken,
+    updateToken ? `(${updateToken.length} chars)` : "",
+  );
+
+  try {
+    autoUpdater.setFeedURL({
+      provider: "github",
+      owner: "cperuffo3",
+      repo: "electron-starter",
+      private: true,
+      token: updateToken,
+    });
+    console.log("[AutoUpdater] Feed URL configured successfully");
+  } catch (err) {
+    console.error("[AutoUpdater] Failed to set feed URL:", err);
+  }
+
   // Configure auto-updater
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;

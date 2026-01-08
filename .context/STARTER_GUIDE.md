@@ -617,9 +617,67 @@ In `package.json`:
     "publish": {
       "provider": "github",
       "owner": "your-username",
-      "repo": "your-repo"
+      "repo": "your-repo",
+      "private": true // Set to true for private repositories
     }
   }
+}
+```
+
+### Private Repository Setup
+
+For private GitHub repositories, you need to configure a GitHub token:
+
+#### 1. Create a GitHub Personal Access Token
+
+1. Go to GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
+2. Click "Generate new token"
+3. Configure:
+   - Token name: your-app-updater
+   - Repository access: Only select repositories → Select your repo
+   - Permissions:
+     - Contents: Read and write
+     - Metadata: Read-only (auto-selected)
+
+#### 2. Add Token to Local .env
+
+Create a `.env` file (copy from `.env.example`) and add:
+
+```bash
+GH_TOKEN=github_pat_11AU47ZII0...your_token_here
+```
+
+#### 3. How It Works
+
+- **Development**: App reads `GH_TOKEN` from `.env` file
+- **Production (CI/CD)**:
+  - GitHub Actions creates `update-config.json` with `GITHUB_TOKEN`
+  - Electron Forge bundles it via `extraResource`
+  - App reads token from resources folder at runtime
+  - electron-updater checks for updates using the bundled token
+
+The token handling is implemented in `src/main.ts`:
+
+```typescript
+// Get GitHub token for private repo updates
+function getUpdateToken(): string {
+  // Development: use .env file (loaded by dotenv)
+  if (process.env.GH_TOKEN) {
+    return process.env.GH_TOKEN;
+  }
+
+  // Production: use bundled config file (created during build/CI)
+  const configPath = path.join(process.resourcesPath, "update-config.json");
+  if (existsSync(configPath)) {
+    try {
+      const config = JSON.parse(readFileSync(configPath, "utf-8"));
+      return config.token || "";
+    } catch (err) {
+      console.error("[AutoUpdater] Failed to read update config:", err);
+    }
+  }
+
+  return "";
 }
 ```
 
@@ -660,6 +718,13 @@ pnpm run format         # Prettier
 pnpm run package        # Package for current platform
 pnpm run make           # Create distributable installers
 ```
+
+**Note**: This starter uses WiX for Windows installers (instead of Squirrel.Windows). This provides:
+
+- ✅ No ENOENT errors (no dependency on app-update.yml)
+- ✅ Proper custom icon support
+- ✅ Single update mechanism via electron-updater
+- ✅ MSI installer with directory selection
 
 ### Releasing
 

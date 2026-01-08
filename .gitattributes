@@ -1,0 +1,49 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source code
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Lock files - use union merge strategy to combine both sides
+# After merging, run `pnpm install` to regenerate properly
+pnpm-lock.yaml merge=union
+package-lock.json merge=union
+yarn.lock merge=union
+
+# Generated files that should be regenerated on conflict
+*.map merge=ours linguist-generated=true
+dist/** linguist-generated=true
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+
+# Fonts
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+
+# Executables
+*.exe binary
+*.dmg binary
+*.app binary

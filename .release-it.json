@@ -9,7 +9,8 @@
     "requireUpstream": true
   },
   "github": {
-    "release": false
+    "release": false,
+    "tokenRef": "GH_TOKEN"
   },
   "npm": {
     "publish": false

@@ -4,9 +4,9 @@
 
 ### Bug Fixes
 
-* formatting issues ([31877a6](https://github.com/cperuffo3/electron-starter/commit/31877a6ffb267aadc0fdb7532d0ca21fb056b323))
-* releaseit setup ([188e1e7](https://github.com/cperuffo3/electron-starter/commit/188e1e7f6772a12adde92bed3b40fc6d1dcbf3e1))
-* releaseit setup ([1565918](https://github.com/cperuffo3/electron-starter/commit/1565918ced3970ee366259d78131fc5666efabcd))
+- formatting issues ([31877a6](https://github.com/cperuffo3/electron-starter/commit/31877a6ffb267aadc0fdb7532d0ca21fb056b323))
+- releaseit setup ([188e1e7](https://github.com/cperuffo3/electron-starter/commit/188e1e7f6772a12adde92bed3b40fc6d1dcbf3e1))
+- releaseit setup ([1565918](https://github.com/cperuffo3/electron-starter/commit/1565918ced3970ee366259d78131fc5666efabcd))
 
 ## 0.1.1 (2026-01-06)
 

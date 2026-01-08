@@ -119,6 +119,33 @@ import { Button } from "@/components/ui/button";
 import { ipc } from "@/ipc/manager";
 ```
 
+### Auto-Updates & Private Repos
+
+This starter supports auto-updates from **private GitHub repositories**:
+
+1. **Set repository to private** in `package.json`:
+
+   ```json
+   "build": {
+     "publish": {
+       "provider": "github",
+       "owner": "your-username",
+       "repo": "your-repo",
+       "private": true
+     }
+   }
+   ```
+
+2. **Create GitHub token** (Fine-grained PAT):
+   - Permissions: Contents (Read/Write), Metadata (Read-only)
+   - Add to `.env`: `GH_TOKEN=github_pat_...`
+
+3. **How it works**:
+   - Dev: Reads `GH_TOKEN` from `.env`
+   - Production: Uses bundled `update-config.json` (created by CI)
+
+4. **Windows installer**: Uses WiX (not Squirrel) for better icon support and single update mechanism
+
 ## Documentation
 
 - **[.context/STARTER_GUIDE.md](.context/STARTER_GUIDE.md)** - Comprehensive guide with examples

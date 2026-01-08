@@ -1,21 +1,34 @@
 import type { ForgeConfig } from "@electron-forge/shared-types";
-import { MakerSquirrel } from "@electron-forge/maker-squirrel";
+import { MakerWix } from "@electron-forge/maker-wix";
 import { MakerZIP } from "@electron-forge/maker-zip";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
+import { existsSync } from "fs";
+
+// Build list of extra resources
+const extraResources = ["./assets"];
+// Add update-config.json if it exists (created during CI build)
+if (existsSync("./update-config.json")) {
+  extraResources.push("./update-config.json");
+}
 
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     icon: "./assets/icons/icon",
-    extraResource: ["./assets"],
+    extraResource: extraResources,
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerWix({
+      icon: "./assets/icons/icon.ico",
+      ui: {
+        chooseDirectory: true,
+      },
+    }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
     new MakerDeb({}),

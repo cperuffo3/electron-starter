@@ -246,7 +246,46 @@ The app automatically checks for updates from GitHub Releases on startup.
 - Manual check via footer button
 - One-click download and install
 
-> **Note:** Auto-update requires a **public** GitHub repository. For private repos, configure a custom update server.
+### Private Repository Support
+
+This starter fully supports auto-updates from **private GitHub repositories**:
+
+1. **Enable private repo updates** in `package.json`:
+   ```json
+   "build": {
+     "publish": {
+       "provider": "github",
+       "owner": "your-username",
+       "repo": "your-repo",
+       "private": true  // ← Add this
+     }
+   }
+   ```
+
+2. **Create a GitHub Personal Access Token**:
+   - Go to GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
+   - Generate new token with:
+     - Repository access: Only select repositories → your repo
+     - Permissions: Contents (Read/Write), Metadata (Read-only)
+   - Copy the token (starts with `github_pat_...`)
+
+3. **Add token to `.env`**:
+   ```bash
+   GH_TOKEN=github_pat_YOUR_TOKEN_HERE
+   ```
+
+4. **How it works**:
+   - **Development**: Reads `GH_TOKEN` from `.env` file
+   - **Production**: Uses `update-config.json` (auto-created by CI with `GITHUB_TOKEN`)
+   - **CI/CD**: GitHub Actions bundles token during build process
+
+### Windows Installer Notes
+
+- Uses **WiX** (not Squirrel.Windows) for better reliability
+- ✅ No ENOENT errors (no dependency on app-update.yml)
+- ✅ Proper custom icon support
+- ✅ Single update mechanism via electron-updater
+- ✅ MSI installer with directory selection
 
 ---
 
