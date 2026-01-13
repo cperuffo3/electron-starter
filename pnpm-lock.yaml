@@ -21,8 +21,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@fortawesome/fontawesome-svg-core@7.1.0)(react@19.2.3)
       '@orpc/client':
-        specifier: ^1.10.4
-        version: 1.13.2
+        specifier: ^1.13.4
+        version: 1.13.4
       '@orpc/server':
         specifier: ^1.13.1
         version: 1.13.2
@@ -1381,6 +1381,9 @@ packages:
   '@orpc/client@1.13.2':
     resolution: {integrity: sha512-xlT72B4EFVCEGPev5edEfN5uqu4fnxZyOoCq9UWUAyj0gNDTCF2Z5mfmA4mdBgwV90k+lIcGLMnUI25baedqpw==}
 
+  '@orpc/client@1.13.4':
+    resolution: {integrity: sha512-s13GPMeoooJc5Th2EaYT5HMFtWG8S03DUVytYfJv8pIhP87RYKl94w52A36denH6r/B4LaAgBeC9nTAOslK+Og==}
+
   '@orpc/contract@1.13.2':
     resolution: {integrity: sha512-td5ExzLPQ2y2zE9itgqod5gmC3WvCFIlkyJSNFRCRhff04PzokE9/hjqGhW5zsNgKuv4rcPYOrkh0e/YiyFndQ==}
 
@@ -1406,6 +1409,14 @@ packages:
       '@opentelemetry/api':
         optional: true
 
+  '@orpc/shared@1.13.4':
+    resolution: {integrity: sha512-TYt9rLG/BUkNQBeQ6C1tEiHS/Seb8OojHgj9GlvqyjHJhMZx5qjsIyTW6RqLPZJ4U2vgK6x4Her36+tlFCKJug==}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.9.0'
+    peerDependenciesMeta:
+      '@opentelemetry/api':
+        optional: true
+
   '@orpc/standard-server-aws-lambda@1.13.2':
     resolution: {integrity: sha512-Gkw72+b5eZKjsSJ5zT4vsnEbHww8An1hkkai4jmLvADtujQQMccjhWNTC7MKGBe1/M818plnfbhqmLx+2rU0IA==}
 
@@ -1420,14 +1431,23 @@ packages:
   '@orpc/standard-server-fetch@1.13.2':
     resolution: {integrity: sha512-JanRDFk78kB8/P5NljV1nx3zcpBsTC9sCAhBcE3ezY1u3Kvt7teRhPxRXcoD0TEBdQjEUeXcqX+zEh4Op2E8nw==}
 
+  '@orpc/standard-server-fetch@1.13.4':
+    resolution: {integrity: sha512-/zmKwnuxfAXbppJpgr1CMnQX3ptPlYcDzLz1TaVzz9VG/Xg58Ov3YhabS2Oi1utLVhy5t4kaCppUducAvoKN+A==}
+
   '@orpc/standard-server-node@1.13.2':
     resolution: {integrity: sha512-asWTGGQEcBKkpz6qEsn0Gfdsj0eZ4zDp/P89jJFuYEREwqsWMrZSiyEQNcCU0Q6UoLai+Wvil575L58i3Adgmg==}
 
   '@orpc/standard-server-peer@1.13.2':
     resolution: {integrity: sha512-LMxaMSmp98jnm0jiHpqPgH5qHXeOvah7pmysrcLaqMfwH+GwRS6S+/ls2hAy9aIba4LrTZyIpTgSohHD/Ed73g==}
 
+  '@orpc/standard-server-peer@1.13.4':
+    resolution: {integrity: sha512-UfqnTLqevjCKUk4cmImOG8cQUwANpV1dp9e9u2O1ki6BRBsg/zlXFg6G2N6wP0zr9ayIiO1d2qJdH55yl/1BNw==}
+
   '@orpc/standard-server@1.13.2':
     resolution: {integrity: sha512-qjxKOvCg2mYBQMPdjEqQEDI+F/v6qm9zKMeFsfxnWKvPhDrPSEk8x40vdXlLbbpW6TCXpQikpycfdvq5H4Nb+Q==}
+
+  '@orpc/standard-server@1.13.4':
+    resolution: {integrity: sha512-ZOzgfVp6XUg+wVYw+gqesfRfGPtQbnBIrIiSnFMtZF+6ncmFJeF2Shc4RI2Guqc0Qz25juy8Ogo4tX3YqysOcg==}
 
   '@phun-ky/typeof@2.0.3':
     resolution: {integrity: sha512-oeQJs1aa8Ghke8JIK9yuq/+KjMiaYeDZ38jx7MhkXncXlUKjqQ3wEm2X3qCKyjo+ZZofZj+WsEEiqkTtRuE2xQ==}
@@ -2541,6 +2561,9 @@ packages:
 
   '@types/node@25.0.3':
     resolution: {integrity: sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA==}
+
+  '@types/node@25.0.7':
+    resolution: {integrity: sha512-C/er7DlIZgRJO7WtTdYovjIFzGsz0I95UlMyR9anTb4aCpBSRWe5Jc1/RvLKUfzmOxHPGjSE5+63HgLtndxU4w==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -5918,6 +5941,10 @@ packages:
     resolution: {integrity: sha512-VCn+LMHbd4t6sF3wfU/+HKT63C9OoyrSIf4b+vtWHpt2U7/4InZG467YDNMFMR70DdHjAdpPWmw2lzRdg0Xqqg==}
     engines: {node: '>=20'}
 
+  type-fest@5.4.0:
+    resolution: {integrity: sha512-wfkA6r0tBpVfGiyO+zbf9e10QkRQSlK9F2UvyfnjoCmrvH2bjHyhPzhugSBOuq1dog3P0+FKckqe+Xf6WKVjwg==}
+    engines: {node: '>=20'}
+
   type-is@2.0.1:
     resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
     engines: {node: '>= 0.6'}
@@ -7417,6 +7444,15 @@ snapshots:
     transitivePeerDependencies:
       - '@opentelemetry/api'
 
+  '@orpc/client@1.13.4':
+    dependencies:
+      '@orpc/shared': 1.13.4
+      '@orpc/standard-server': 1.13.4
+      '@orpc/standard-server-fetch': 1.13.4
+      '@orpc/standard-server-peer': 1.13.4
+    transitivePeerDependencies:
+      - '@opentelemetry/api'
+
   '@orpc/contract@1.13.2':
     dependencies:
       '@orpc/client': 1.13.2
@@ -7450,6 +7486,11 @@ snapshots:
       radash: 12.1.1
       type-fest: 5.3.1
 
+  '@orpc/shared@1.13.4':
+    dependencies:
+      radash: 12.1.1
+      type-fest: 5.4.0
+
   '@orpc/standard-server-aws-lambda@1.13.2':
     dependencies:
       '@orpc/shared': 1.13.2
@@ -7474,6 +7515,13 @@ snapshots:
     transitivePeerDependencies:
       - '@opentelemetry/api'
 
+  '@orpc/standard-server-fetch@1.13.4':
+    dependencies:
+      '@orpc/shared': 1.13.4
+      '@orpc/standard-server': 1.13.4
+    transitivePeerDependencies:
+      - '@opentelemetry/api'
+
   '@orpc/standard-server-node@1.13.2':
     dependencies:
       '@orpc/shared': 1.13.2
@@ -7489,9 +7537,22 @@ snapshots:
     transitivePeerDependencies:
       - '@opentelemetry/api'
 
+  '@orpc/standard-server-peer@1.13.4':
+    dependencies:
+      '@orpc/shared': 1.13.4
+      '@orpc/standard-server': 1.13.4
+    transitivePeerDependencies:
+      - '@opentelemetry/api'
+
   '@orpc/standard-server@1.13.2':
     dependencies:
       '@orpc/shared': 1.13.2
+    transitivePeerDependencies:
+      - '@opentelemetry/api'
+
+  '@orpc/standard-server@1.13.4':
+    dependencies:
+      '@orpc/shared': 1.13.4
     transitivePeerDependencies:
       - '@opentelemetry/api'
 
@@ -8627,6 +8688,11 @@ snapshots:
   '@types/node@25.0.3':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/node@25.0.7':
+    dependencies:
+      undici-types: 7.16.0
+    optional: true
 
   '@types/normalize-package-data@2.4.4': {}
 
@@ -10882,7 +10948,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 25.0.7
       merge-stream: 2.0.0
       supports-color: 8.1.1
     optional: true
@@ -12589,6 +12655,10 @@ snapshots:
   type-fest@2.19.0: {}
 
   type-fest@5.3.1:
+    dependencies:
+      tagged-tag: 1.0.0
+
+  type-fest@5.4.0:
     dependencies:
       tagged-tag: 1.0.0
 
