@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.3](https://github.com/cperuffo3/electron-starter/compare/v0.4.2...v0.4.3) (2026-01-21)
+
+### Bug Fixes
+
+- fix: init script dependency loading
+
 ## [0.4.2](https://github.com/cperuffo3/electron-starter/compare/v0.4.1...v0.4.2) (2026-01-21)
 
 ### Bug Fixes
