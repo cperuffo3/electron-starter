@@ -212,6 +212,37 @@ export async function updateClaudeMd(rootDir, productName) {
 }
 
 /**
+ * Update hero-section.tsx with new product name
+ * @param {string} rootDir - Root directory of the project
+ * @param {string} productName - Product name (display name)
+ */
+export async function updateHeroSection(rootDir, productName) {
+  await replaceInFile(
+    path.join(rootDir, "src/components/home/hero-section.tsx"),
+    [
+      {
+        from: ">Electron Starter</h1>",
+        to: `>${productName}</h1>`,
+      },
+    ],
+  );
+}
+
+/**
+ * Update base-layout.tsx with new product name in title bar
+ * @param {string} rootDir - Root directory of the project
+ * @param {string} productName - Product name (display name)
+ */
+export async function updateBaseLayout(rootDir, productName) {
+  await replaceInFile(path.join(rootDir, "src/layouts/base-layout.tsx"), [
+    {
+      from: '<DragWindowRegion title="Electron Starter"',
+      to: `<DragWindowRegion title="${productName}"`,
+    },
+  ]);
+}
+
+/**
  * Remove the init-project script entry from package.json
  * This prevents the script from being run again after initialization
  * @param {string} rootDir - Root directory of the project
@@ -239,6 +270,7 @@ export async function removeInitScript(rootDir) {
  * @param {object} config - Configuration object
  * @param {string} config.githubOwner - GitHub owner
  * @param {string} config.projectName - Project name
+ * @param {string} config.productName - Product name (display name)
  * @param {boolean} config.isPrivate - Whether the repository is private
  * @param {string[]} config.platforms - Target platforms (windows, macos, linux)
  */
@@ -247,6 +279,12 @@ export async function updateElectronBuilderConfig(rootDir, config) {
 
   try {
     let content = await fs.readFile(configPath, "utf-8");
+
+    // Update productName
+    content = content.replace(
+      /productName: .+/,
+      `productName: ${config.productName}`,
+    );
 
     // Update owner and repo
     content = content.replace(/owner: .+/, `owner: ${config.githubOwner}`);

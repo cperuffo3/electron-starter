@@ -17,32 +17,10 @@ import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import {
-  promptAlreadyInitialized,
-  promptAuthorEmail,
-  promptAuthorName,
-  promptConfirmation,
-  promptDescription,
-  promptGitHubOwner,
-  promptProductName,
-  promptProjectName,
-  promptRepoVisibility,
-  promptResetGit,
-  promptTargetPlatforms,
-  promptVersion,
-} from "./lib/prompts.mjs";
-import {
-  removeInitScript,
-  updateClaudeMd,
-  updateElectronBuilderConfig,
-  updateForgeConfig,
-  updateIndexHtml,
-  updateNotificationComponent,
-  updatePackageJson,
-  updateReadme,
-  updateReleaseWorkflow,
-} from "./lib/replacer.mjs";
-import { generateAppId, toTitleCase } from "./lib/utils.mjs";
+// These modules are dynamically imported after pnpm install
+let prompts;
+let replacer;
+let utils;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -81,7 +59,7 @@ async function resetGitHistory(projectName) {
     execSync("git add -A", { cwd: ROOT, stdio: "pipe" });
 
     // Create initial commit
-    const titleName = toTitleCase(projectName);
+    const titleName = utils.toTitleCase(projectName);
     execSync(`git commit -m "Initial commit: ${titleName}"`, {
       cwd: ROOT,
       stdio: "pipe",
@@ -95,16 +73,38 @@ async function resetGitHistory(projectName) {
 }
 
 /**
+ * Install dependencies before running the script
+ */
+async function installDependencies() {
+  console.log("Installing dependencies...\n");
+  try {
+    execSync("pnpm install", { cwd: ROOT, stdio: "inherit" });
+    console.log("");
+  } catch (error) {
+    console.error("Failed to install dependencies:", error.message);
+    process.exit(1);
+  }
+
+  // Now that dependencies are installed, load the modules that depend on them
+  prompts = await import("./lib/prompts.mjs");
+  replacer = await import("./lib/replacer.mjs");
+  utils = await import("./lib/utils.mjs");
+}
+
+/**
  * Main initialization function
  */
 async function main() {
+  // Install dependencies first
+  await installDependencies();
+
   console.log("\n========================================");
   console.log("  Electron Boilerplate - Project Setup");
   console.log("========================================\n");
 
   // Check if already initialized
   if (await isAlreadyInitialized()) {
-    const proceed = await promptAlreadyInitialized();
+    const proceed = await prompts.promptAlreadyInitialized();
     if (!proceed) {
       console.log("Cancelled.");
       process.exit(0);
@@ -112,20 +112,20 @@ async function main() {
   }
 
   // Gather user inputs
-  const projectName = await promptProjectName();
-  const defaultProductName = toTitleCase(projectName);
-  const productName = await promptProductName(defaultProductName);
-  const description = await promptDescription();
-  const githubOwner = await promptGitHubOwner();
-  const repoVisibility = await promptRepoVisibility();
-  const targetPlatforms = await promptTargetPlatforms();
-  const authorName = await promptAuthorName();
-  const authorEmail = await promptAuthorEmail();
-  const version = await promptVersion();
-  const resetGit = await promptResetGit();
+  const projectName = await prompts.promptProjectName();
+  const defaultProductName = utils.toTitleCase(projectName);
+  const productName = await prompts.promptProductName(defaultProductName);
+  const description = await prompts.promptDescription();
+  const githubOwner = await prompts.promptGitHubOwner();
+  const repoVisibility = await prompts.promptRepoVisibility();
+  const targetPlatforms = await prompts.promptTargetPlatforms();
+  const authorName = await prompts.promptAuthorName();
+  const authorEmail = await prompts.promptAuthorEmail();
+  const version = await prompts.promptVersion();
+  const resetGit = await prompts.promptResetGit();
 
   // Generate derived values
-  const appId = generateAppId(projectName, githubOwner);
+  const appId = utils.generateAppId(projectName, githubOwner);
   const isPrivate = repoVisibility === "private";
 
   // Display summary
@@ -145,7 +145,7 @@ async function main() {
   console.log("----------------------------------------\n");
 
   // Confirm
-  const confirmed = await promptConfirmation();
+  const confirmed = await prompts.promptConfirmation();
   if (!confirmed) {
     console.log("Cancelled.");
     process.exit(0);
@@ -156,7 +156,7 @@ async function main() {
   // Perform updates
   try {
     console.log("Updating package.json...");
-    await updatePackageJson(ROOT, {
+    await replacer.updatePackageJson(ROOT, {
       projectName,
       productName,
       description,
@@ -168,33 +168,40 @@ async function main() {
     });
 
     console.log("Updating electron-builder.yml...");
-    await updateElectronBuilderConfig(ROOT, {
+    await replacer.updateElectronBuilderConfig(ROOT, {
       githubOwner,
       projectName,
+      productName,
       isPrivate,
       platforms: targetPlatforms,
     });
 
     console.log("Updating release.yaml workflow...");
-    await updateReleaseWorkflow(ROOT, {
+    await replacer.updateReleaseWorkflow(ROOT, {
       isPrivate,
       platforms: targetPlatforms,
     });
 
     console.log("Updating forge.config.ts...");
-    await updateForgeConfig(ROOT, githubOwner, projectName);
+    await replacer.updateForgeConfig(ROOT, githubOwner, projectName);
 
     console.log("Updating index.html...");
-    await updateIndexHtml(ROOT, productName);
+    await replacer.updateIndexHtml(ROOT, productName);
 
     console.log("Updating update-notification.tsx...");
-    await updateNotificationComponent(ROOT, githubOwner, projectName);
+    await replacer.updateNotificationComponent(ROOT, githubOwner, projectName);
 
     console.log("Updating README.md...");
-    await updateReadme(ROOT, productName, description);
+    await replacer.updateReadme(ROOT, productName, description);
 
     console.log("Updating CLAUDE.md...");
-    await updateClaudeMd(ROOT, productName);
+    await replacer.updateClaudeMd(ROOT, productName);
+
+    console.log("Updating hero-section.tsx...");
+    await replacer.updateHeroSection(ROOT, productName);
+
+    console.log("Updating base-layout.tsx...");
+    await replacer.updateBaseLayout(ROOT, productName);
 
     if (resetGit) {
       await resetGitHistory(projectName);
@@ -202,7 +209,7 @@ async function main() {
 
     // Remove the init-project script from package.json
     console.log("\nRemoving init-project script...");
-    await removeInitScript(ROOT);
+    await replacer.removeInitScript(ROOT);
 
     console.log("\n========================================");
     console.log("  Project initialized successfully!");
