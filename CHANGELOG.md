@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/cperuffo3/electron-starter/compare/v0.4.1...v0.4.2) (2026-01-21)
+
+### Bug Fixes
+
+- fix: dependabot config
+- fix: remove unneeded markdown
+
 ## [0.4.1](https://github.com/cperuffo3/electron-starter/compare/v0.4.0...v0.4.1) (2026-01-08)
 
 ### Bug Fixes
