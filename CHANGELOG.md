@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.4](https://github.com/cperuffo3/electron-starter/compare/v0.4.3...v0.4.4) (2026-01-22)
+
+### Bug Fixes
+
+- fix: init script for auto-updater bugs
+
 ## [0.4.3](https://github.com/cperuffo3/electron-starter/compare/v0.4.2...v0.4.3) (2026-01-21)
 
 ### Bug Fixes
