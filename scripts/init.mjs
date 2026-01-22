@@ -191,6 +191,9 @@ async function main() {
     console.log("Updating update-notification.tsx...");
     await replacer.updateNotificationComponent(ROOT, githubOwner, projectName);
 
+    console.log("Updating main.ts (autoUpdater config)...");
+    await replacer.updateMainTs(ROOT, githubOwner, projectName);
+
     console.log("Updating README.md...");
     await replacer.updateReadme(ROOT, productName, description);
 
@@ -202,6 +205,9 @@ async function main() {
 
     console.log("Updating base-layout.tsx...");
     await replacer.updateBaseLayout(ROOT, productName);
+
+    console.log("Resetting CHANGELOG.md...");
+    await replacer.resetChangelog(ROOT, version, productName);
 
     if (resetGit) {
       await resetGitHistory(projectName);

@@ -243,6 +243,47 @@ export async function updateBaseLayout(rootDir, productName) {
 }
 
 /**
+ * Reset CHANGELOG.md with the initial version
+ * @param {string} rootDir - Root directory of the project
+ * @param {string} version - Initial version
+ * @param {string} productName - Product name (display name)
+ */
+export async function resetChangelog(rootDir, version, productName) {
+  const changelogPath = path.join(rootDir, "CHANGELOG.md");
+  const today = new Date().toISOString().split("T")[0];
+
+  const newChangelog = `# Changelog
+
+## ${version} (${today})
+
+### Initial Release
+
+- Initial release of ${productName}
+`;
+
+  await fs.writeFile(changelogPath, newChangelog, "utf-8");
+}
+
+/**
+ * Update main.ts with new GitHub owner and repo for autoUpdater
+ * @param {string} rootDir - Root directory of the project
+ * @param {string} githubOwner - GitHub owner
+ * @param {string} projectName - Project name (repo name)
+ */
+export async function updateMainTs(rootDir, githubOwner, projectName) {
+  await replaceInFile(path.join(rootDir, "src/main.ts"), [
+    {
+      from: 'owner: "cperuffo3"',
+      to: `owner: "${githubOwner}"`,
+    },
+    {
+      from: 'repo: "electron-starter"',
+      to: `repo: "${projectName}"`,
+    },
+  ]);
+}
+
+/**
  * Remove the init-project script entry from package.json
  * This prevents the script from being run again after initialization
  * @param {string} rootDir - Root directory of the project
