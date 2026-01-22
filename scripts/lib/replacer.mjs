@@ -412,69 +412,73 @@ export async function updateReleaseWorkflow(rootDir, config) {
       );
     }
 
-    // Filter build matrix to only include selected platforms
-    const platformMap = {
-      windows: { os: "windows-latest", platform: "win" },
-      macos: { os: "macos-latest", platform: "mac" },
-      linux: { os: "ubuntu-latest", platform: "linux" },
-    };
-
-    const matrixItems = config.platforms
-      .map((p) => {
-        const platform = platformMap[p];
-        return `          - os: ${platform.os}\n            platform: ${platform.platform}`;
-      })
-      .join("\n");
-
-    content = content.replace(
-      /( {8}matrix:\n {10}include:\n)((?:.*\n)*?)( {0,8}\n {4}runs-on:)/,
-      `$1${matrixItems}\n$3`,
-    );
-
-    // Update artifact download sections
-    const artifactDownloads = config.platforms
-      .map((p) => {
-        const platform = platformMap[p].platform;
-        const platformName =
-          p === "macos" ? "macOS" : p.charAt(0).toUpperCase() + p.slice(1);
-        return `      - name: Download ${platformName} artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: release-${platform}
-          path: artifacts/${platform}`;
-      })
-      .join("\n\n");
-
-    content = content.replace(
-      /( {6}- name: Download Windows artifacts\n(?:.*\n)*? {10}path: artifacts\/linux\n)/,
-      artifactDownloads + "\n",
-    );
-
-    // Update download instructions in release body
-    const downloadInstructions = [];
-    if (config.platforms.includes("windows")) {
-      downloadInstructions.push(
-        "**Windows:** Download `Electron-Starter-*-Windows-Setup.exe`",
+    // Comment out matrix entries for non-selected platforms
+    if (!config.platforms.includes("windows")) {
+      content = content.replace(
+        /( +)- os: windows-latest\n( +)platform: win\n/,
+        "$1# - os: windows-latest\n$2#   platform: win\n",
       );
     }
-    if (config.platforms.includes("macos")) {
-      downloadInstructions.push(
-        "**macOS (Intel):** Download `Electron-Starter-*-macOS-x64.zip`",
-        "**macOS (Apple Silicon):** Download `Electron-Starter-*-macOS-arm64.zip`",
+    if (!config.platforms.includes("macos")) {
+      content = content.replace(
+        /( +)- os: macos-latest\n( +)platform: mac\n/,
+        "$1# - os: macos-latest\n$2#   platform: mac\n",
       );
     }
-    if (config.platforms.includes("linux")) {
-      downloadInstructions.push(
-        "**Linux (Debian/Ubuntu):** Download `Electron-Starter-*-Linux-*.deb`",
-        "**Linux (Fedora/RHEL):** Download `Electron-Starter-*-Linux-*.rpm`",
+    if (!config.platforms.includes("linux")) {
+      content = content.replace(
+        /( +)- os: ubuntu-latest\n( +)platform: linux\n/,
+        "$1# - os: ubuntu-latest\n$2#   platform: linux\n",
       );
     }
 
-    const instructionsContent = downloadInstructions.join("\n            ");
-    content = content.replace(
-      /( {12}## Downloads\n\n)((?:.*\n)*?)( {12}\*Full changelog:)/,
-      `$1            ${instructionsContent}\n\n$3`,
-    );
+    // Comment out artifact download steps for non-selected platforms
+    if (!config.platforms.includes("windows")) {
+      content = content.replace(
+        /( +)- name: Download Windows artifacts\n( +)uses: actions\/download-artifact@v4\n( +)with:\n( +)name: release-win\n( +)path: artifacts\/win\n/,
+        "$1# - name: Download Windows artifacts\n$2#   uses: actions/download-artifact@v4\n$3#   with:\n$4#     name: release-win\n$5#     path: artifacts/win\n",
+      );
+    }
+    if (!config.platforms.includes("macos")) {
+      content = content.replace(
+        /( +)- name: Download macOS artifacts\n( +)uses: actions\/download-artifact@v4\n( +)with:\n( +)name: release-mac\n( +)path: artifacts\/mac\n/,
+        "$1# - name: Download macOS artifacts\n$2#   uses: actions/download-artifact@v4\n$3#   with:\n$4#     name: release-mac\n$5#     path: artifacts/mac\n",
+      );
+    }
+    if (!config.platforms.includes("linux")) {
+      content = content.replace(
+        /( +)- name: Download Linux artifacts\n( +)uses: actions\/download-artifact@v4\n( +)with:\n( +)name: release-linux\n( +)path: artifacts\/linux\n/,
+        "$1# - name: Download Linux artifacts\n$2#   uses: actions/download-artifact@v4\n$3#   with:\n$4#     name: release-linux\n$5#     path: artifacts/linux\n",
+      );
+    }
+
+    // Comment out download instructions in release body for non-selected platforms
+    if (!config.platforms.includes("windows")) {
+      content = content.replace(
+        /( +)\*\*Windows:\*\* Download `Electron-Starter-\*-Windows-Setup\.exe`\n/,
+        "$1# **Windows:** Download `Electron-Starter-*-Windows-Setup.exe`\n",
+      );
+    }
+    if (!config.platforms.includes("macos")) {
+      content = content.replace(
+        /( +)\*\*macOS \(Intel\):\*\* Download `Electron-Starter-\*-macOS-x64\.zip`\n/,
+        "$1# **macOS (Intel):** Download `Electron-Starter-*-macOS-x64.zip`\n",
+      );
+      content = content.replace(
+        /( +)\*\*macOS \(Apple Silicon\):\*\* Download `Electron-Starter-\*-macOS-arm64\.zip`\n/,
+        "$1# **macOS (Apple Silicon):** Download `Electron-Starter-*-macOS-arm64.zip`\n",
+      );
+    }
+    if (!config.platforms.includes("linux")) {
+      content = content.replace(
+        /( +)\*\*Linux \(Debian\/Ubuntu\):\*\* Download `Electron-Starter-\*-Linux-\*\.deb`\n/,
+        "$1# **Linux (Debian/Ubuntu):** Download `Electron-Starter-*-Linux-*.deb`\n",
+      );
+      content = content.replace(
+        /( +)\*\*Linux \(Fedora\/RHEL\):\*\* Download `Electron-Starter-\*-Linux-\*\.rpm`\n/,
+        "$1# **Linux (Fedora/RHEL):** Download `Electron-Starter-*-Linux-*.rpm`\n",
+      );
+    }
 
     await fs.writeFile(workflowPath, content, "utf-8");
     return true;
