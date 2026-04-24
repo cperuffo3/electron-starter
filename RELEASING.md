@@ -65,17 +65,17 @@ chore(deps-dev): bump the development-dependencies group
 
 The `conventionalcommits` preset is configured in `.release-it.json` with these section mappings:
 
-| Type                                   | Shows under    | In changelog?           |
-| :------------------------------------- | :------------- | :---------------------- |
-| `feat`                                 | Features       | yes                     |
-| `fix`                                  | Bug Fixes      | yes                     |
-| `perf`                                 | Performance    | yes                     |
-| `refactor`                             | Refactoring    | yes                     |
-| `docs`                                 | Documentation  | yes                     |
-| `chore`                                | —              | hidden                  |
-| `style`                                | —              | hidden                  |
-| `test`                                 | —              | hidden                  |
-| `!` suffix / `BREAKING CHANGE:` footer | major bump     | highlighted             |
+| Type                                   | Shows under   | In changelog? |
+| :------------------------------------- | :------------ | :------------ |
+| `feat`                                 | Features      | yes           |
+| `fix`                                  | Bug Fixes     | yes           |
+| `perf`                                 | Performance   | yes           |
+| `refactor`                             | Refactoring   | yes           |
+| `docs`                                 | Documentation | yes           |
+| `chore`                                | —             | hidden        |
+| `style`                                | —             | hidden        |
+| `test`                                 | —             | hidden        |
+| `!` suffix / `BREAKING CHANGE:` footer | major bump    | highlighted   |
 
 ### 3. Open a PR into `main`
 
@@ -173,10 +173,10 @@ You should never need to hand-edit `CHANGELOG.md` or the `version` field in `pac
 
 The release pipeline needs GitHub tokens in two places:
 
-| Where                       | Name (either works)             | Purpose                                                                                                                                                                                  |
-| :-------------------------- | :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Local `.env` (gitignored)   | `GITHUB_TOKEN` or `GH_TOKEN`    | Consumed by `release-it` via `dotenv-cli`. Needs `Contents: Read/Write` (so it can push commits + tags to `main`). Also consumed by `electron-updater` when you test updates in dev.     |
-| Repo secret (GitHub → Settings → Secrets → Actions) | `GH_RELEASE_TOKEN` | Fine-grained PAT with `Contents: Read`, `Metadata: Read` on this repo. Written into `update-config.json` during CI and **bundled into each installer** so the installed app can authenticate to fetch private release assets. |
+| Where                                               | Name (either works)          | Purpose                                                                                                                                                                                                                       |
+| :-------------------------------------------------- | :--------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local `.env` (gitignored)                           | `GITHUB_TOKEN` or `GH_TOKEN` | Consumed by `release-it` via `dotenv-cli`. Needs `Contents: Read/Write` (so it can push commits + tags to `main`). Also consumed by `electron-updater` when you test updates in dev.                                          |
+| Repo secret (GitHub → Settings → Secrets → Actions) | `GH_RELEASE_TOKEN`           | Fine-grained PAT with `Contents: Read`, `Metadata: Read` on this repo. Written into `update-config.json` during CI and **bundled into each installer** so the installed app can authenticate to fetch private release assets. |
 
 `secrets.GITHUB_TOKEN` (the automatic workflow token) is used by the workflow for publishing the Release itself — no setup needed.
 

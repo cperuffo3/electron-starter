@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/cperuffo3/electron-starter/compare/v0.4.5...v0.5.0) (2026-04-24)
+
+### Features
+
+- feat: add releasing.md
+- feat: update to electron v41.3
+
 ## [0.4.5](https://github.com/cperuffo3/electron-starter/compare/v0.4.4...v0.4.5) (2026-01-22)
 
 ### Bug Fixes
