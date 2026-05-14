@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.1](https://github.com/cperuffo3/electron-starter/compare/v0.5.0...v0.5.1) (2026-05-14)
+
+### Bug Fixes
+
+- fix: fix update to remove old version
+
 ## [0.5.0](https://github.com/cperuffo3/electron-starter/compare/v0.4.5...v0.5.0) (2026-04-24)
 
 ### Features
