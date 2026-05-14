@@ -64,7 +64,11 @@ export const downloadUpdate = os.handler(
 );
 
 export const installUpdate = os.handler((): void => {
-  autoUpdater.quitAndInstall(false, true);
+  // isSilent=true → NSIS runs with /S, skipping the wizard so the user can't
+  // pick a different install directory than the current version. The NSIS
+  // template still uninstalls the previous version (looked up via appId in
+  // the registry) before laying down the new one, so the old copy is removed.
+  autoUpdater.quitAndInstall(true, true);
 });
 
 export const isPortable = os.handler((): boolean => {
