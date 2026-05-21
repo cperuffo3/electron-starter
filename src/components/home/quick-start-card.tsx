@@ -5,15 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRocket } from "@fortawesome/free-solid-svg-icons";
+import { Rocket } from "lucide-react";
 
 export function QuickStartCard() {
   return (
     <Card size="sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FontAwesomeIcon icon={faRocket} className="text-teal size-4" />
+          <Rocket className="text-teal size-4" />
           Quick Start
         </CardTitle>
         <CardDescription>Get up and running in seconds</CardDescription>

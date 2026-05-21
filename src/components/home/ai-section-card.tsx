@@ -5,20 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faRobot,
-  faFileLines,
-  faLayerGroup,
-  faListCheck,
-} from "@fortawesome/free-solid-svg-icons";
+import { Bot, FileText, Layers, ListChecks } from "lucide-react";
 
 export function AiSectionCard() {
   return (
     <Card size="sm" className="border-teal/30 bg-teal/5">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FontAwesomeIcon icon={faRobot} className="text-teal size-4" />
+          <Bot className="text-teal size-4" />
           Start with AI
         </CardTitle>
         <CardDescription>
@@ -36,10 +30,7 @@ export function AiSectionCard() {
         </p>
         <div className="grid gap-2 sm:grid-cols-3">
           <div className="bg-background flex items-center gap-2 rounded-md px-3 py-2">
-            <FontAwesomeIcon
-              icon={faFileLines}
-              className="text-teal size-3 shrink-0"
-            />
+            <FileText className="text-teal size-3 shrink-0" />
             <div>
               <p className="text-xs font-medium">Project Brief</p>
               <p className="text-muted-foreground text-[10px]">
@@ -48,10 +39,7 @@ export function AiSectionCard() {
             </div>
           </div>
           <div className="bg-background flex items-center gap-2 rounded-md px-3 py-2">
-            <FontAwesomeIcon
-              icon={faLayerGroup}
-              className="text-teal size-3 shrink-0"
-            />
+            <Layers className="text-teal size-3 shrink-0" />
             <div>
               <p className="text-xs font-medium">UI/UX Spec</p>
               <p className="text-muted-foreground text-[10px]">
@@ -60,10 +48,7 @@ export function AiSectionCard() {
             </div>
           </div>
           <div className="bg-background flex items-center gap-2 rounded-md px-3 py-2">
-            <FontAwesomeIcon
-              icon={faListCheck}
-              className="text-teal size-3 shrink-0"
-            />
+            <ListChecks className="text-teal size-3 shrink-0" />
             <div>
               <p className="text-xs font-medium">Implementation</p>
               <p className="text-muted-foreground text-[10px]">

@@ -5,8 +5,7 @@ import {
   UpdateNotificationProvider,
   useUpdateNotification,
 } from "@/components/shared";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
+import { Home, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
 import { ipc } from "@/ipc/manager";
@@ -59,7 +58,7 @@ function BaseLayoutContent({ children }: { children: React.ReactNode }) {
             className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-xs"
             title="Return to home"
           >
-            <FontAwesomeIcon icon={faHome} className="size-3" />
+            <Home className="size-3" />
           </Button>
           <Button
             variant="ghost"
@@ -68,10 +67,11 @@ function BaseLayoutContent({ children }: { children: React.ReactNode }) {
             className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-xs"
             title="Toggle theme"
           >
-            <FontAwesomeIcon
-              icon={theme === "dark" ? faSun : faMoon}
-              className="size-3"
-            />
+            {theme === "dark" ? (
+              <Sun className="size-3" />
+            ) : (
+              <Moon className="size-3" />
+            )}
           </Button>
         </div>
         <button

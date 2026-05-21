@@ -1,13 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTerminal } from "@fortawesome/free-solid-svg-icons";
+import { Terminal } from "lucide-react";
 
 export function ScriptsCard() {
   return (
     <Card size="sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FontAwesomeIcon icon={faTerminal} className="text-teal size-4" />
+          <Terminal className="text-teal size-4" />
           Available Scripts
         </CardTitle>
       </CardHeader>

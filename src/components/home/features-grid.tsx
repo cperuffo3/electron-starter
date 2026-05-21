@@ -1,11 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCode,
-  faPalette,
-  faPlug,
-  faCog,
-} from "@fortawesome/free-solid-svg-icons";
+import { Code, Palette, Plug, Cog } from "lucide-react";
 
 export function FeaturesGrid() {
   return (
@@ -13,7 +7,7 @@ export function FeaturesGrid() {
       <Card size="sm">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-xs">
-            <FontAwesomeIcon icon={faCode} className="text-teal size-3" />
+            <Code className="text-teal size-3" />
             IPC with oRPC
           </CardTitle>
         </CardHeader>
@@ -27,7 +21,7 @@ export function FeaturesGrid() {
       <Card size="sm">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-xs">
-            <FontAwesomeIcon icon={faPalette} className="text-teal size-3" />
+            <Palette className="text-teal size-3" />
             shadcn/ui
           </CardTitle>
         </CardHeader>
@@ -41,7 +35,7 @@ export function FeaturesGrid() {
       <Card size="sm">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-xs">
-            <FontAwesomeIcon icon={faPlug} className="text-teal size-3" />
+            <Plug className="text-teal size-3" />
             TanStack Router
           </CardTitle>
         </CardHeader>
@@ -55,7 +49,7 @@ export function FeaturesGrid() {
       <Card size="sm">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-xs">
-            <FontAwesomeIcon icon={faCog} className="text-teal size-3" />
+            <Cog className="text-teal size-3" />
             Auto Updates
           </CardTitle>
         </CardHeader>

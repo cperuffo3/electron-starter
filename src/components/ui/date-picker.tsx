@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  faCalendar,
-  faChevronDown,
-  faXmark,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Calendar as CalendarIcon, ChevronDown, X } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -59,13 +54,10 @@ export function DatePicker({
             )}
           >
             <span className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faCalendar} className="h-4 w-4" />
+              <CalendarIcon className="h-4 w-4" />
               {value ? value.toLocaleDateString() : placeholder}
             </span>
-            <FontAwesomeIcon
-              icon={faChevronDown}
-              className="h-4 w-4 opacity-50"
-            />
+            <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto overflow-hidden p-0" align="start">
@@ -89,7 +81,7 @@ export function DatePicker({
           onClick={handleClear}
           aria-label="Clear date"
         >
-          <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
+          <X className="h-4 w-4" />
         </Button>
       )}
     </div>

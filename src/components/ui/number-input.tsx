@@ -1,5 +1,4 @@
-import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 import { NumericFormat, NumericFormatProps } from "react-number-format";
 import { Button } from "./button";
@@ -157,7 +156,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             onClick={handleIncrement}
             disabled={disabled || value === max}
           >
-            <FontAwesomeIcon icon={faChevronUp} className="h-3 w-3" />
+            <ChevronUp className="h-3 w-3" />
           </Button>
           <Button
             type="button"
@@ -167,7 +166,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             onClick={handleDecrement}
             disabled={disabled || value === min}
           >
-            <FontAwesomeIcon icon={faChevronDown} className="h-3 w-3" />
+            <ChevronDown className="h-3 w-3" />
           </Button>
         </div>
       </div>
