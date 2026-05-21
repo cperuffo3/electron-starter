@@ -1,16 +1,9 @@
 import { cn } from "@/utils/tailwind";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { Loader2Icon } from "lucide-react";
 
-function Spinner({
-  className,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  icon: _icon,
-  ...props
-}: React.ComponentProps<typeof FontAwesomeIcon>) {
+function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
   return (
-    <FontAwesomeIcon
-      icon={faSpinner}
+    <Loader2Icon
       role="status"
       aria-label="Loading"
       className={cn("size-4 animate-spin", className)}

@@ -40,7 +40,7 @@ export function DragWindowRegion({ title }: DragWindowRegionProps) {
           </div>
         )}
         {isMacOS && (
-          <div className="flex min-h-[28px] flex-1 p-2 pl-20">
+          <div className="flex min-h-7 flex-1 p-2 pl-20">
             {/* Reserve space for macOS traffic-light buttons */}
           </div>
         )}

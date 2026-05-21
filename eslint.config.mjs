@@ -44,4 +44,11 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ["src/components/ui/**/*.{ts,tsx}", "src/hooks/use-mobile.ts"],
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/refs": "off",
+    },
+  },
 ]);

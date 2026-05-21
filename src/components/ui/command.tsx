@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
 
@@ -10,8 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { SearchIcon, CheckIcon } from "lucide-react";
 
 function Command({
   className,
@@ -49,7 +50,10 @@ function CommandDialog({
         <DialogDescription>{description}</DialogDescription>
       </DialogHeader>
       <DialogContent
-        className={cn("overflow-hidden rounded-xl! p-0", className)}
+        className={cn(
+          "top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0",
+          className,
+        )}
         showCloseButton={showCloseButton}
       >
         {children}
@@ -74,10 +78,7 @@ function CommandInput({
           {...props}
         />
         <InputGroupAddon>
-          <FontAwesomeIcon
-            icon={faSearch}
-            className="size-3.5 shrink-0 opacity-50"
-          />
+          <SearchIcon className="size-3.5 shrink-0 opacity-50" />
         </InputGroupAddon>
       </InputGroup>
     </div>
@@ -151,16 +152,13 @@ function CommandItem({
     <CommandPrimitive.Item
       data-slot="command-item"
       className={cn(
-        "data-selected:bg-muted data-selected:text-foreground data-selected:*:[svg]:text-foreground group/command-item relative flex min-h-7 cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none in-data-[slot=dialog-content]:rounded-md data-[disabled=true]:pointer-events-none data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
+        "group/command-item data-selected:bg-muted data-selected:text-foreground data-selected:*:[svg]:text-foreground relative flex min-h-7 cursor-default items-center gap-2 rounded-md px-2.5 py-1.5 text-xs/relaxed outline-hidden select-none in-data-[slot=dialog-content]:rounded-md data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         className,
       )}
       {...props}
     >
       {children}
-      <FontAwesomeIcon
-        icon={faCheck}
-        className="ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100"
-      />
+      <CheckIcon className="ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
     </CommandPrimitive.Item>
   );
 }
