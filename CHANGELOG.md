@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.2](https://github.com/cperuffo3/electron-starter/compare/v0.5.1...v0.5.2) (2026-05-21)
+
+### Bug Fixes
+
+- fix: upgrade packages
+
 ## [0.5.1](https://github.com/cperuffo3/electron-starter/compare/v0.5.0...v0.5.1) (2026-05-14)
 
 ### Bug Fixes
