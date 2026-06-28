@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/cperuffo3/electron-starter/compare/v0.5.2...v0.6.0) (2026-06-28)
+
+### Features
+
+- feat: preinstall all shadcn-ui components
+
+### Bug Fixes
+
+- fix: fix drag bar height on macos
+- fix: fix packages and linting
+- fix: fix pnpm issues
+- fix: remove old icon packs
+
 ## [0.5.2](https://github.com/cperuffo3/electron-starter/compare/v0.5.1...v0.5.2) (2026-05-21)
 
 ### Bug Fixes
