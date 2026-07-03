@@ -56,20 +56,21 @@ Use checkboxes to track progress within each phase:
 ```markdown
 ## Phase 2: Core Data Layer
 
-### Types (`src/types/`)
+### Feature scaffold
 
-- [ ] Create `user.ts` with User interface
-- [ ] Create `settings.ts` with Settings interface
+- [ ] Run `pnpm new:feature user` (creates the main-process module and renderer feature)
 
-### IPC Handlers (`src/ipc/`)
+### IPC Handlers (`src/main/core/user/`)
 
-- [ ] Create `user/handlers.ts`
-- [ ] Create `user/schemas.ts`
-- [ ] Update `router.ts` to include new handlers
+- [ ] Implement `handlers.ts`
+- [ ] Define zod inputs in `schemas.ts`
+- [ ] Confirm `src/main/core/router.ts` includes the new domain (auto-wired by the generator)
 
-### Actions (`src/actions/`)
+### Renderer feature (`src/renderer/features/user/`)
 
-- [ ] Create `user.ts` wrapper functions
+- [ ] Implement `actions/user-actions.ts` wrapper functions
+- [ ] Wrap actions in TanStack Query hooks in `queries/user-queries.ts`
+- [ ] Add types to `types/user.types.ts`
 ```
 
 ### File Inventory
@@ -79,18 +80,18 @@ List new files to create and existing files to modify:
 ```markdown
 ### New Files
 
-| File                           | Purpose                |
-| ------------------------------ | ---------------------- |
-| `src/types/user.ts`            | User type definitions  |
-| `src/ipc/user/handlers.ts`     | User IPC handlers      |
-| `src/components/user-card.tsx` | User display component |
+| File                                                  | Purpose                |
+| ----------------------------------------------------- | ---------------------- |
+| `src/renderer/features/user/types/user.types.ts`      | User type definitions  |
+| `src/main/core/user/handlers.ts`                      | User IPC handlers      |
+| `src/renderer/features/user/components/user-card.tsx` | User display component |
 
 ### Modified Files
 
-| File                | Changes                  |
-| ------------------- | ------------------------ |
-| `src/ipc/router.ts` | Add user handlers        |
-| `src/App.tsx`       | Add UserProvider wrapper |
+| File                      | Changes                  |
+| ------------------------- | ------------------------ |
+| `src/main/core/router.ts` | Add user handlers        |
+| `src/renderer/app.tsx`    | Add UserProvider wrapper |
 ```
 
 ### Dependencies

@@ -1,31 +1,19 @@
 {
+  // Solution-style config: real settings live in the per-process configs
+  // (src/main, src/preload, src/renderer, extending src/tsconfig.base.json).
+  // The paths below are duplicated here for tools (e.g. shadcn CLI) that only
+  // read the root tsconfig.
+  "files": [],
+  "references": [
+    { "path": "./src/main" },
+    { "path": "./src/preload" },
+    { "path": "./src/renderer" }
+  ],
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "target": "ESNext",
-    "module": "ESNext",
-    "lib": ["dom", "ESNext"],
-    "experimentalDecorators": true,
-    "composite": true,
-    "declaration": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowJs": false,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "strict": true,
     "paths": {
-      "@/*": ["./src/*"]
-    },
-    "outDir": "dist",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "skipLibCheck": true
-  },
-  "include": [
-    "src/**/*",
-    "./package.json",
-    "./electron.vite.config.ts",
-    "*.mts"
-  ]
+      "@/*": ["./src/renderer/*"],
+      "@main/*": ["./src/main/*"],
+      "@shared/*": ["./src/shared/*"]
+    }
+  }
 }

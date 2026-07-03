@@ -3,7 +3,7 @@
 /coverage
 /.vite
 README.md
-/src/routeTree.gen.ts
+/src/renderer/routeTree.gen.ts
 
 # Lock files should not be formatted
 pnpm-lock.yaml

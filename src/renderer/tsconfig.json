@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "outDir": "../../dist/types/renderer",
+    "paths": {
+      "@/*": ["./*"],
+      "@shared/*": ["../shared/*"],
+      "@main/*": ["../main/*"]
+    }
+  },
+  "include": ["**/*", "../shared/**/*", "../preload/index.d.ts"]
+}

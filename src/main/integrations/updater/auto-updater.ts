@@ -1,0 +1,113 @@
+import { existsSync, readFileSync } from "fs";
+import path from "path";
+import { autoUpdater } from "electron-updater";
+import { ipcContext } from "@main/core/context";
+import { inDevelopment, isPortable } from "@main/common/env";
+import { UPDATE_CHANNELS } from "@shared/constants";
+
+// Get GitHub token for private repo updates
+function getUpdateToken(): string {
+  // Development: use .env file (loaded by dotenv)
+  // Check both GH_TOKEN and GITHUB_TOKEN for flexibility
+  const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+  if (token) {
+    return token;
+  }
+
+  // Production: use bundled config file (created during build/CI)
+  // Check in resources directory (where extraResource files are placed)
+  const configPath = path.join(process.resourcesPath, "update-config.json");
+  if (existsSync(configPath)) {
+    try {
+      const config = JSON.parse(readFileSync(configPath, "utf-8"));
+      return config.token || "";
+    } catch (err) {
+      console.error("[AutoUpdater] Failed to read update config:", err);
+    }
+  }
+
+  return "";
+}
+
+export function setupAutoUpdater() {
+  // Configure updater for private GitHub repo
+  const updateToken = getUpdateToken();
+  console.log(
+    "[AutoUpdater] Token available:",
+    !!updateToken,
+    updateToken ? `(${updateToken.length} chars)` : "",
+  );
+
+  try {
+    autoUpdater.setFeedURL({
+      provider: "github",
+      owner: "cperuffo3",
+      repo: "electron-starter",
+      private: true,
+      token: updateToken,
+    });
+    console.log("[AutoUpdater] Feed URL configured successfully");
+  } catch (err) {
+    console.error("[AutoUpdater] Failed to set feed URL:", err);
+  }
+
+  // Configure auto-updater
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  // Make updates silent (Windows: no elevation dialog, install on quit)
+  if (process.platform === "win32") {
+    autoUpdater.allowDowngrade = false;
+  }
+
+  // Forward update events to renderer
+  autoUpdater.on("checking-for-update", () => {
+    console.log("[AutoUpdater] Checking for updates...");
+    ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.CHECKING);
+  });
+
+  autoUpdater.on("update-available", (info) => {
+    console.log("[AutoUpdater] Update available:", info.version);
+    ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.AVAILABLE, info);
+  });
+
+  autoUpdater.on("update-not-available", (info) => {
+    console.log("[AutoUpdater] No update available");
+    ipcContext.mainWindow?.webContents.send(
+      UPDATE_CHANNELS.NOT_AVAILABLE,
+      info,
+    );
+  });
+
+  autoUpdater.on("update-downloaded", (info) => {
+    console.log("[AutoUpdater] Update downloaded:", info.version);
+    ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.DOWNLOADED, info);
+
+    // On Windows, the update will install silently when the app quits
+    // due to autoInstallOnAppQuit: true
+  });
+
+  autoUpdater.on("download-progress", (progress) => {
+    console.log(
+      `[AutoUpdater] Download progress: ${progress.percent.toFixed(1)}%`,
+    );
+    ipcContext.mainWindow?.webContents.send(UPDATE_CHANNELS.PROGRESS, progress);
+  });
+
+  autoUpdater.on("error", (error) => {
+    console.error("[AutoUpdater] Error:", error.message);
+    ipcContext.mainWindow?.webContents.send(
+      UPDATE_CHANNELS.ERROR,
+      error.message,
+    );
+  });
+
+  // Auto-check for updates on startup (only in production, non-portable)
+  if (!inDevelopment && !isPortable) {
+    setTimeout(() => {
+      autoUpdater.checkForUpdates().catch((err) => {
+        console.error("[AutoUpdater] Update check failed:", err);
+      });
+    }, 3000);
+  }
+}

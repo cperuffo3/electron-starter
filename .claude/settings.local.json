@@ -51,11 +51,10 @@
       "Search(**)",
       "Grep(**)",
       "Bash(npx:*)",
-      "Bash(7z l:*)"
+      "Bash(7z l:*)",
+      "Bash(rm:*)"
     ],
     "deny": [
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git pull:*)",
       "Bash(git fetch:*)",
@@ -68,9 +67,8 @@
       "Bash(git restore:*)",
       "Bash(git stash:*)",
       "Bash(git cherry-pick:*)",
-      "Bash(git clean:*)",
-      "Bash(git rm:*)"
+      "Bash(git clean:*)"
     ],
-    "ask": ["Bash(rm:*)"]
+    "ask": ["Bash(rm:*)", "Bash(git add:*)", "Bash(git commit:*)"]
   }
 }

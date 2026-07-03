@@ -9,7 +9,7 @@ A modern Electron boilerplate with React, Tailwind CSS 4, and shadcn/ui — desi
 
 | Category | Technologies |
 |----------|-------------|
-| **Framework** | Electron 39, electron-vite, electron-builder |
+| **Framework** | Electron 41, electron-vite, electron-builder |
 | **Build** | Vite 7 (via electron-vite) |
 | **UI** | React 19, TypeScript 5.9, Tailwind CSS 4, shadcn/ui |
 | **Routing** | TanStack Router (file-based, fully typed) |
@@ -21,7 +21,7 @@ A modern Electron boilerplate with React, Tailwind CSS 4, and shadcn/ui — desi
 
 - **Type-safe IPC** — No more stringly-typed `ipcMain.handle`/`ipcRenderer.invoke`. oRPC provides full TypeScript inference across processes.
 - **21+ UI components** — Pre-configured shadcn/ui components ready to use.
-- **File-based routing** — Add a file to `src/routes/`, get a route automatically.
+- **File-based routing** — Add a file to `src/renderer/routes/`, get a route automatically.
 - **Auto-updates** — Built-in update system with progress UI, powered by GitHub Releases.
 - **AI-ready** — Comprehensive documentation in `.context/` for Claude Code and other AI assistants.
 
@@ -103,25 +103,36 @@ The `.context/` folder contains comprehensive documentation:
 
 ## Project Structure
 
+`src/` is split by Electron process; the renderer is organized feature-first.
+The layout is **enforced by ESLint** (import boundaries + file naming), so apps
+built on this starter keep the same shape as they grow.
+
 ```
 src/
-├── main.ts              # Electron main process
-├── preload.ts           # Security bridge (contextBridge)
-├── App.tsx              # React app entry
-├── routes/              # TanStack Router pages (file-based)
-│   ├── __root.tsx       # Root layout
-│   └── index.tsx        # Home page (/)
-├── components/
-│   ├── ui/              # shadcn/ui components (21+)
-│   └── ...              # App components
-├── ipc/                 # IPC system
-│   ├── manager.ts       # Client (renderer)
-│   ├── handler.ts       # Server (main)
-│   ├── router.ts        # Handler aggregation
-│   └── <domain>/        # Handler domains (theme, window, etc.)
-├── actions/             # Renderer-side IPC wrappers
-├── layouts/             # Layout components
-└── styles/              # Tailwind + design tokens
+├── main/                    # Main process ("the server")
+│   ├── index.ts             #   Bootstrap (app lifecycle wiring only)
+│   ├── core/<domain>/       #   oRPC modules (handlers.ts, schemas.ts, index.ts)
+│   │   ├── router.ts        #   Aggregates all domain routers
+│   │   └── rpc-server.ts    #   MessagePort handshake
+│   ├── integrations/        #   External-system wrappers (auto-updater, ...)
+│   ├── windows/             #   BrowserWindow factories
+│   └── common/              #   Cross-cutting helpers (env, ...)
+├── preload/                 # contextBridge bridge + window API types
+├── renderer/                # Renderer process ("the client")
+│   ├── index.html           #   Vite entry
+│   ├── index.tsx / app.tsx  #   React entry + root providers
+│   ├── features/<feature>/  #   Feature modules: actions/ queries/ components/ types/
+│   ├── routes/              #   TanStack Router pages (thin, compose features)
+│   ├── components/          #   ui/ (shadcn registry), shared/, layouts/
+│   ├── lib/                 #   ipc-client, query-client, router
+│   └── styles/              #   Tailwind + design tokens
+└── shared/                  # Cross-process constants/types (imports nothing)
+```
+
+Scaffold a new feature (main-process module + renderer feature, auto-wired):
+
+```bash
+pnpm run new:feature my-feature
 ```
 
 ---
@@ -134,7 +145,8 @@ src/
 pnpm run dev                # Run in development mode (hot reload)
 pnpm run start              # Alias for dev
 pnpm run build              # Build for production
-pnpm run lint               # ESLint check and fix
+pnpm run lint               # ESLint check and fix (boundaries + naming enforced)
+pnpm run type-check         # Type-check main, preload, and renderer
 pnpm run format             # Prettier format
 ```
 
@@ -143,7 +155,7 @@ pnpm run format             # Prettier format
 ```bash
 pnpm run package            # Package without creating installer
 pnpm run make               # Create distributable installers
-pnpm run make:win           # Windows only (WiX MSI)
+pnpm run make:win           # Windows only (NSIS)
 pnpm run make:mac           # macOS only (ZIP)
 pnpm run make:linux         # Linux only (DEB, RPM)
 ```
@@ -161,6 +173,7 @@ pnpm run release:major      # 0.1.0 → 1.0.0
 
 ```bash
 pnpm run init-project              # Project setup wizard
+pnpm run new:feature <name>        # Scaffold a feature module (main + renderer)
 pnpm run generate-icons            # Generate icons from SVG
 pnpm run bump-shadcn-components    # Update shadcn/ui components
 ```
@@ -172,7 +185,7 @@ pnpm run bump-shadcn-components    # Update shadcn/ui components
 Communication between main and renderer uses oRPC for full type safety:
 
 ```typescript
-// 1. Create handler (src/ipc/myDomain/handlers.ts)
+// 1. Create handler (src/main/core/my-domain/handlers.ts)
 import { os } from "@orpc/server";
 import { z } from "zod";
 
@@ -182,25 +195,27 @@ export const myHandler = os
     return { greeting: `Hello, ${input.name}!` };
   });
 
-// 2. Add to router (src/ipc/router.ts)
+// 2. Add to router (src/main/core/router.ts)
 export const router = { ...existing, myDomain };
 
-// 3. Create action (src/actions/myDomain.ts)
-import { ipc } from "@/ipc/manager";
+// 3. Create action (src/renderer/features/my-feature/actions/my-feature-actions.ts)
+import { ipc } from "@/lib/ipc-client";
 export const greet = (name: string) => ipc.client.myDomain.myHandler({ name });
 
-// 4. Use in React
-const result = await greet("World"); // Fully typed!
+// 4. Wrap in a TanStack Query hook (queries/my-feature-queries.ts) and use it
+const { data } = useQuery({ queryKey: ["greet"], queryFn: () => greet("World") }); // Fully typed!
 ```
+
+`pnpm run new:feature my-feature` generates all of the above.
 
 ---
 
 ## Adding Routes
 
-Create a file in `src/routes/`:
+Create a file in `src/renderer/routes/`:
 
 ```typescript
-// src/routes/settings.tsx
+// src/renderer/routes/settings.tsx
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/settings")({
@@ -288,11 +303,11 @@ This starter fully supports auto-updates from **private GitHub repositories**:
 
 ### Windows Installer Notes
 
-- Uses **WiX** (not Squirrel.Windows) for better reliability
+- Uses **NSIS** (not Squirrel.Windows) for better reliability
 - ✅ No ENOENT errors (no dependency on app-update.yml)
 - ✅ Proper custom icon support
 - ✅ Single update mechanism via electron-updater
-- ✅ MSI installer with directory selection
+- ✅ NSIS installer with directory selection
 
 ---
 

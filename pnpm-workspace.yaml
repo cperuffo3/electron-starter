@@ -4,9 +4,11 @@ allowBuilds:
   esbuild: true
   msw: true
   sharp: true
+  unrs-resolver: true
 onlyBuiltDependencies:
   - electron
   - electron-winstaller
   - esbuild
   - msw
   - sharp
+  - unrs-resolver

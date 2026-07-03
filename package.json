@@ -16,6 +16,7 @@
     "make:mac": "electron-vite build && electron-builder build --mac",
     "make:linux": "electron-vite build && electron-builder build --linux",
     "lint": "eslint . --fix",
+    "type-check": "tsc --noEmit --composite false -p src/main/tsconfig.json && tsc --noEmit --composite false -p src/preload/tsconfig.json && tsc --noEmit --composite false -p src/renderer/tsconfig.json",
     "format": "prettier --write .",
     "release": "dotenv -- release-it",
     "release:patch": "dotenv -- release-it patch",
@@ -23,10 +24,90 @@
     "release:major": "dotenv -- release-it major",
     "bump-shadcn-components": "ts-node ./scripts/bump-shadcn-components.ts",
     "init-project": "node scripts/init.mjs",
+    "new:feature": "node scripts/new-feature.mjs",
     "generate-icons": "node scripts/generate-icons.mjs"
   },
   "author": "Corey Peruffo <cperuffo3@gmail.com>",
   "license": "MIT",
+  "prettier": {
+    "singleQuote": false,
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "semi": true,
+    "endOfLine": "auto",
+    "plugins": [
+      "prettier-plugin-tailwindcss"
+    ]
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore(release): v${version}",
+      "tagName": "v${version}",
+      "tagAnnotation": "Release v${version}",
+      "requireBranch": "main",
+      "requireCleanWorkingDir": true,
+      "requireUpstream": true
+    },
+    "github": {
+      "release": false,
+      "tokenRef": "GH_TOKEN"
+    },
+    "npm": {
+      "publish": false
+    },
+    "hooks": {
+      "before:init": [
+        "pnpm run lint",
+        "pnpm run type-check"
+      ],
+      "after:bump": "pnpm install --lockfile-only && pnpm run format"
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "conventionalcommits",
+          "types": [
+            {
+              "type": "feat",
+              "section": "Features"
+            },
+            {
+              "type": "fix",
+              "section": "Bug Fixes"
+            },
+            {
+              "type": "perf",
+              "section": "Performance"
+            },
+            {
+              "type": "refactor",
+              "section": "Refactoring"
+            },
+            {
+              "type": "docs",
+              "section": "Documentation"
+            },
+            {
+              "type": "chore",
+              "hidden": true
+            },
+            {
+              "type": "style",
+              "hidden": true
+            },
+            {
+              "type": "test",
+              "hidden": true
+            }
+          ]
+        },
+        "infile": "CHANGELOG.md",
+        "writerOpts": {
+          "commitPartial": "- {{header}}\n"
+        }
+      }
+    }
+  },
   "devDependencies": {
     "@electron/fuses": "~2.1.1",
     "@eslint/compat": "^2.1.0",
@@ -49,6 +130,9 @@
     "electron-vite": "^5.0.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-boundaries": "^6.0.2",
+    "eslint-plugin-check-file": "^3.3.1",
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",

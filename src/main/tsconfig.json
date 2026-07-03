@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "types": ["node"],
+    "outDir": "../../dist/types/main",
+    "paths": {
+      "@main/*": ["./*"],
+      "@shared/*": ["../shared/*"]
+    }
+  },
+  "include": ["**/*", "../shared/**/*", "../../electron.vite.config.ts"]
+}

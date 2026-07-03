@@ -12,13 +12,14 @@ export default defineConfig({
       outDir: "dist/main",
       rollupOptions: {
         input: {
-          index: resolve(__dirname, "src/main.ts"),
+          index: resolve(__dirname, "src/main/index.ts"),
         },
       },
     },
     resolve: {
       alias: {
-        "@": resolve(__dirname, "./src"),
+        "@main": resolve(__dirname, "./src/main"),
+        "@shared": resolve(__dirname, "./src/shared"),
       },
     },
   },
@@ -29,20 +30,25 @@ export default defineConfig({
       outDir: "dist/preload",
       rollupOptions: {
         input: {
-          index: resolve(__dirname, "src/preload.ts"),
+          index: resolve(__dirname, "src/preload/index.ts"),
         },
+      },
+    },
+    resolve: {
+      alias: {
+        "@shared": resolve(__dirname, "./src/shared"),
       },
     },
   },
 
   renderer: {
     // Renderer process configuration (React app)
-    root: ".",
+    root: "src/renderer",
     build: {
       outDir: "dist/renderer",
       rollupOptions: {
         input: {
-          index: resolve(__dirname, "index.html"),
+          index: resolve(__dirname, "src/renderer/index.html"),
         },
       },
     },
@@ -51,7 +57,8 @@ export default defineConfig({
       viteStaticCopy({
         targets: [
           {
-            src: "assets",
+            // relative to the renderer root (src/renderer)
+            src: "../../assets",
             dest: ".",
           },
         ],
@@ -59,6 +66,8 @@ export default defineConfig({
       tanstackRouter({
         target: "react",
         autoCodeSplitting: true,
+        routesDirectory: resolve(__dirname, "src/renderer/routes"),
+        generatedRouteTree: resolve(__dirname, "src/renderer/routeTree.gen.ts"),
       }),
       tailwindcss(),
       react({
@@ -69,7 +78,8 @@ export default defineConfig({
     ],
     resolve: {
       alias: {
-        "@": resolve(__dirname, "./src"),
+        "@": resolve(__dirname, "./src/renderer"),
+        "@shared": resolve(__dirname, "./src/shared"),
       },
     },
   },

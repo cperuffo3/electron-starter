@@ -21,16 +21,17 @@ This comprehensive guide teaches AI assistants (and developers) how to work with
 
 This is a modern Electron desktop application built with:
 
-| Layer     | Technology                 | Purpose                                     |
-| --------- | -------------------------- | ------------------------------------------- |
-| Framework | Electron 39                | Desktop app shell                           |
-| Build     | electron-vite + Vite 7     | Unified build system for all processes      |
-| Packaging | electron-builder           | Multi-platform installers with ASAR/fuses   |
-| UI        | React 19 + TypeScript      | Component-based UI                          |
-| Styling   | Tailwind CSS 4 + shadcn/ui | Utility-first CSS with pre-built components |
-| Routing   | TanStack Router            | Type-safe file-based routing                |
-| IPC       | oRPC                       | Type-safe main↔renderer communication       |
-| Updates   | electron-updater           | Auto-updates from GitHub Releases           |
+| Layer        | Technology                 | Purpose                                     |
+| ------------ | -------------------------- | ------------------------------------------- |
+| Framework    | Electron 41                | Desktop app shell                           |
+| Build        | electron-vite + Vite 7     | Unified build system for all processes      |
+| Packaging    | electron-builder           | Multi-platform installers with ASAR/fuses   |
+| UI           | React 19 + TypeScript      | Component-based UI                          |
+| Styling      | Tailwind CSS 4 + shadcn/ui | Utility-first CSS with pre-built components |
+| Routing      | TanStack Router            | Type-safe file-based routing                |
+| Server state | TanStack Query             | Query/mutation hooks wrapping IPC actions   |
+| IPC          | oRPC                       | Type-safe main↔renderer communication       |
+| Updates      | electron-updater           | Auto-updates from GitHub Releases           |
 
 ### Process Model
 
@@ -41,36 +42,65 @@ Electron apps have two processes that communicate via IPC:
 │                     MAIN PROCESS                            │
 │  (Node.js - full system access)                             │
 │                                                             │
-│  src/main.ts          - App lifecycle, window creation      │
-│  src/ipc/handler.ts   - oRPC server endpoint                │
-│  src/ipc/*/handlers.ts - Business logic (theme, window, etc)│
+│  src/main/index.ts              - App lifecycle bootstrap   │
+│  src/main/windows/main-window.ts - BrowserWindow factory    │
+│  src/main/core/rpc-server.ts    - oRPC server endpoint      │
+│  src/main/core/*/handlers.ts    - Business logic (theme,    │
+│                                   window, app, shell)       │
+│  src/main/integrations/updater/ - electron-updater wiring   │
 └─────────────────────────────────────────────────────────────┘
                           ↕ MessagePort (oRPC)
 ┌─────────────────────────────────────────────────────────────┐
 │                   RENDERER PROCESS                          │
 │  (Browser - sandboxed, runs React)                          │
 │                                                             │
-│  src/App.tsx          - React app entry                     │
-│  src/ipc/manager.ts   - oRPC client                         │
-│  src/actions/*.ts     - IPC wrapper functions               │
-│  src/routes/*.tsx     - Page components                     │
-│  src/components/*.tsx - UI components                       │
+│  src/renderer/app.tsx           - Root providers            │
+│  src/renderer/lib/ipc-client.ts - oRPC client               │
+│  src/renderer/features/*/       - Feature modules (actions, │
+│                                   queries, components)      │
+│  src/renderer/routes/*.tsx      - Page components           │
+│  src/renderer/components/       - Generic UI components     │
 └─────────────────────────────────────────────────────────────┘
                           ↕ contextBridge
 ┌─────────────────────────────────────────────────────────────┐
 │                    PRELOAD SCRIPT                           │
 │  (Bridge between main and renderer)                         │
 │                                                             │
-│  src/preload.ts       - Exposes safe APIs to renderer       │
+│  src/preload/index.ts - Exposes safe APIs to renderer       │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+Cross-process types and constants (IPC channel names, updater types) live in
+`src/shared/`, which imports nothing from any process.
+
+### Enforced Boundaries
+
+The `src/` layout is physically split by Electron process, and the rules are
+**enforced by ESLint** (`eslint-plugin-boundaries` + `eslint-plugin-check-file`)
+— illegal imports and wrongly named files are lint **errors**, not suggestions:
+
+- `main`, `preload`, and `renderer` may not import each other; all three may
+  import `shared`. One exception: the renderer may import the main router **as
+  a type only** (`import type { router } from "@main/core/router"` in
+  `src/renderer/lib/ipc-client.ts`).
+- `components/ui/` (vendored shadcn) may only import other ui components and
+  `utils`/`hooks`.
+- `features/` may never import `routes/` — routes compose features, never the
+  reverse.
+- All files and folders in `src/` are **kebab-case** (routes exempt: TanStack
+  needs `__root.tsx`).
+
+TypeScript is split the same way: the root `tsconfig.json` is solution-style
+and only references the three per-process configs (`src/main/tsconfig.json`,
+`src/preload/tsconfig.json`, `src/renderer/tsconfig.json`, all sharing
+`src/tsconfig.base.json`). `pnpm run type-check` runs all three.
 
 ---
 
 ## Project Structure
 
 ```
-electron-boilerplate/
+electron-starter/
 ├── .context/                    # AI assistant documentation
 │   ├── STARTER_GUIDE.md        # This file
 │   ├── PROJECT_BRIEF.md        # Your project specification
@@ -80,65 +110,81 @@ electron-boilerplate/
 │   └── icons/                  # App icons (icon.svg → generated formats)
 ├── scripts/
 │   ├── init.mjs                # Project setup wizard
+│   ├── new-feature.mjs         # Feature module scaffolder (pnpm new:feature)
 │   ├── generate-icons.mjs      # SVG to multi-format icon generator
 │   └── bump-shadcn-components.ts # Update shadcn/ui components
 ├── src/
-│   ├── main.ts                 # Electron main process entry
-│   ├── preload.ts              # Preload script (security bridge)
-│   ├── renderer.ts             # Renderer process entry
-│   ├── App.tsx                 # React app root
-│   ├── actions/                # Renderer-side IPC wrappers
-│   │   ├── theme.ts            # Theme actions
-│   │   ├── window.ts           # Window control actions
-│   │   ├── shell.ts            # Shell/external link actions
-│   │   └── app.ts              # App info actions
-│   ├── components/
-│   │   ├── ui/                 # shadcn/ui components (DO NOT MODIFY)
-│   │   ├── shared/             # Shared components (used across pages)
-│   │   │   ├── drag-window-region.tsx
-│   │   │   ├── external-link.tsx
-│   │   │   ├── update-notification.tsx
-│   │   │   └── index.ts        # Barrel export
-│   │   └── home/               # Home page components
-│   │       ├── hero-section.tsx
-│   │       ├── quick-start-card.tsx
-│   │       ├── features-grid.tsx
-│   │       ├── scripts-card.tsx
-│   │       ├── customization-card.tsx
-│   │       ├── ai-section-card.tsx
-│   │       └── index.ts        # Barrel export
-│   ├── constants/
-│   │   └── index.ts            # IPC channels, localStorage keys
-│   ├── ipc/                    # IPC system
-│   │   ├── manager.ts          # Client-side oRPC manager
-│   │   ├── handler.ts          # Server-side oRPC handler
-│   │   ├── router.ts           # Aggregates all handlers
-│   │   ├── context.ts          # Provides BrowserWindow to handlers
-│   │   ├── theme/              # Theme handlers
-│   │   ├── window/             # Window control handlers
-│   │   ├── app/                # App info handlers
-│   │   ├── shell/              # External link handlers
-│   │   └── updater/            # Auto-update handlers
-│   ├── layouts/
-│   │   └── base-layout.tsx     # App shell with title bar
-│   ├── routes/                 # TanStack Router pages
-│   │   ├── __root.tsx          # Root layout
-│   │   └── index.tsx           # Home page (/)
-│   ├── styles/
-│   │   └── global.css          # Tailwind + design tokens
-│   ├── types/
-│   │   └── theme-mode.ts       # Theme type definitions
-│   └── utils/
-│       ├── cn.ts               # Class name utility
-│       └── routes.ts           # Router instance
-├── forge.config.ts             # Electron Forge config
-├── vite.main.config.mts        # Vite config for main process
-├── vite.preload.config.mts     # Vite config for preload
-├── vite.renderer.config.mts    # Vite config for renderer
-├── tsconfig.json               # TypeScript config
+│   ├── main/                   # Main process ("the server")
+│   │   ├── index.ts            # Bootstrap only: app lifecycle wiring
+│   │   ├── core/               # oRPC IPC system
+│   │   │   ├── router.ts       # Aggregates all domain routers
+│   │   │   ├── rpc-server.ts   # MessagePort handshake + RPCHandler
+│   │   │   ├── context.ts      # Per-request window context middleware
+│   │   │   ├── theme/          # Theme handlers (handlers.ts, schemas.ts, index.ts)
+│   │   │   ├── window/         # Window control handlers
+│   │   │   ├── app/            # App info handlers
+│   │   │   └── shell/          # External link handlers
+│   │   ├── integrations/
+│   │   │   └── updater/        # electron-updater: auto-updater.ts + handlers
+│   │   ├── windows/
+│   │   │   └── main-window.ts  # BrowserWindow factory
+│   │   └── common/
+│   │       └── env.ts          # dotenv loading
+│   ├── preload/
+│   │   ├── index.ts            # contextBridge (security bridge)
+│   │   └── index.d.ts          # Types for the exposed window API
+│   ├── renderer/               # Renderer process ("the client")
+│   │   ├── index.html          # Vite entry point
+│   │   ├── index.tsx           # React entry
+│   │   ├── app.tsx             # Root providers (Query, Theme, Router)
+│   │   ├── features/           # Feature modules — the default home for new code
+│   │   │   ├── home/           # Welcome page cards
+│   │   │   ├── theme/          # Theme actions + types
+│   │   │   ├── window/         # Window control actions
+│   │   │   ├── shell/          # External link actions
+│   │   │   ├── app/            # Version/platform actions + queries
+│   │   │   └── updater/        # Update-notification UI + hooks
+│   │   ├── routes/             # TanStack Router pages
+│   │   │   ├── __root.tsx      # Root layout
+│   │   │   └── index.tsx       # Home page (/)
+│   │   ├── components/
+│   │   │   ├── ui/             # shadcn/ui components (DO NOT MODIFY)
+│   │   │   ├── shared/         # Generic reusable components
+│   │   │   │   ├── drag-window-region.tsx
+│   │   │   │   ├── external-link.tsx
+│   │   │   │   └── index.ts    # Barrel export
+│   │   │   └── layouts/
+│   │   │       └── base-layout.tsx # App shell with title bar
+│   │   ├── lib/
+│   │   │   ├── ipc-client.ts   # Client-side oRPC manager
+│   │   │   ├── query-client.ts # TanStack Query client
+│   │   │   ├── router.ts       # Router instance
+│   │   │   └── constants.ts    # localStorage keys
+│   │   ├── hooks/              # shadcn support (use-mobile)
+│   │   ├── utils/              # shadcn support (tailwind.ts → cn)
+│   │   └── styles/
+│   │       └── global.css      # Tailwind + design tokens
+│   ├── shared/                 # Cross-process code; imports NOTHING
+│   │   ├── constants.ts        # IPC_CHANNELS, UPDATE_CHANNELS
+│   │   └── types/updater.ts    # Updater types
+│   └── tsconfig.base.json      # Shared TS settings for all processes
+├── electron.vite.config.ts     # Unified Vite config (main/preload/renderer)
+├── electron-builder.yml        # Packaging targets + publish settings
+├── tsconfig.json               # Solution-style TS config (references only)
 ├── package.json                # Dependencies and scripts
-├── CLAUDE.md                   # AI assistant quick reference
-└── index.html                  # HTML entry point
+└── CLAUDE.md                   # AI assistant quick reference
+```
+
+Each feature module follows the same taxonomy:
+
+```
+src/renderer/features/<feature>/
+├── actions/    # <feature>-actions.ts — typed IPC calls (only layer that touches the ipc client)
+├── queries/    # <feature>-queries.ts — TanStack Query hooks wrapping actions
+├── components/ # Feature-owned React components
+├── hooks/      # Feature-owned hooks
+├── types/      # <feature>.types.ts
+└── index.ts    # Public API barrel — import features through this
 ```
 
 ---
@@ -149,24 +195,32 @@ The boilerplate uses [oRPC](https://orpc.dev/) for type-safe communication betwe
 
 ### How It Works
 
-1. **Renderer creates MessageChannel** → `src/ipc/manager.ts`
+1. **Renderer creates MessageChannel** → `src/renderer/lib/ipc-client.ts`
 2. **Sends one port to main process** → via `window.postMessage`
-3. **Main process starts oRPC server** → `src/main.ts` → `src/ipc/handler.ts`
+3. **Main process starts oRPC server** → `src/main/index.ts` → `src/main/core/rpc-server.ts`
 4. **Renderer calls methods** → `ipc.client.domain.method()`
-5. **Main process executes handler** → `src/ipc/<domain>/handlers.ts`
+5. **Main process executes handler** → `src/main/core/<domain>/handlers.ts`
 6. **Response flows back** → fully typed
+
+Type safety across the boundary comes from a single type-only import: the
+renderer's ipc client imports the main router **as a type only**
+(`import type { router } from "@main/core/router"`) — no runtime main-process
+code ever reaches the renderer bundle.
 
 ### Calling IPC from React Components
 
 ```typescript
-// Option 1: Use action wrappers (recommended)
-import { toggleTheme } from "@/actions/theme";
+// Option 1: Use a feature's action wrappers (recommended)
+import { toggleTheme } from "@/features/theme";
 await toggleTheme();
 
-// Option 2: Direct IPC client access
-import { ipc } from "@/ipc/manager";
+// Option 2: Direct IPC client access (only inside feature actions)
+import { ipc } from "@/lib/ipc-client";
 const version = await ipc.client.app.appVersion();
 ```
+
+Data flows one way inside a feature: components → queries → actions →
+`lib/ipc-client`. Components never call `ipc.client` directly.
 
 ### Available IPC Domains
 
@@ -178,18 +232,27 @@ const version = await ipc.client.app.appVersion();
 | `shell`   | `openExternalLink(url)`                                                    | Open URLs in browser |
 | `updater` | `checkForUpdates()`, `downloadUpdate()`, `installUpdate()`, `isPortable()` | Auto-updates         |
 
+Core domains live in `src/main/core/<domain>/`; the `updater` domain wraps an
+external system, so it lives in `src/main/integrations/updater/` instead.
+
 ---
 
 ## Adding New IPC Handlers
 
-Follow this pattern to add new IPC functionality:
+Follow this pattern to add new IPC functionality.
+
+> **Shortcut**: `pnpm new:feature <kebab-name>` scaffolds everything below —
+> the `src/main/core/<name>/` domain (handlers + schemas), the
+> `src/renderer/features/<name>/` module (actions/queries/types taxonomy) —
+> and auto-wires the domain into `src/main/core/router.ts`. The manual steps
+> are still worth understanding:
 
 ### Step 1: Create Handler Files
 
-Create a new domain folder in `src/ipc/`:
+Create a new domain folder in `src/main/core/`:
 
 ```
-src/ipc/database/
+src/main/core/database/
 ├── handlers.ts   # Handler implementations
 ├── schemas.ts    # Zod input schemas (if needed)
 └── index.ts      # Export aggregation
@@ -198,7 +261,7 @@ src/ipc/database/
 ### Step 2: Implement Handlers
 
 ```typescript
-// src/ipc/database/handlers.ts
+// src/main/core/database/handlers.ts
 import { os } from "@orpc/server";
 import { z } from "zod";
 
@@ -217,12 +280,13 @@ export const createRecord = os
   });
 
 // Handler with context (access to BrowserWindow)
-import { ipcContext } from "@/ipc/context";
+import { ipcContext } from "../context";
 
 export const showNotification = os
+  .use(ipcContext.mainWindowContext)
   .input(z.object({ message: z.string() }))
-  .handler(async ({ input }) => {
-    const window = ipcContext.mainWindow;
+  .handler(async ({ input, context }) => {
+    const { window } = context;
     // Use window for notifications, dialogs, etc.
     return true;
   });
@@ -231,7 +295,7 @@ export const showNotification = os
 ### Step 3: Create Index Export
 
 ```typescript
-// src/ipc/database/index.ts
+// src/main/core/database/index.ts
 import { getAllRecords, createRecord, showNotification } from "./handlers";
 
 export const database = {
@@ -244,7 +308,7 @@ export const database = {
 ### Step 4: Add to Router
 
 ```typescript
-// src/ipc/router.ts
+// src/main/core/router.ts
 import { database } from "./database";
 
 export const router = {
@@ -257,11 +321,14 @@ export const router = {
 };
 ```
 
-### Step 5: Create Action Wrapper (Optional but Recommended)
+### Step 5: Create Action Wrappers in a Feature
+
+Renderer-side code lives in a feature module. Actions are the only layer that
+touches the ipc client:
 
 ```typescript
-// src/actions/database.ts
-import { ipc } from "@/ipc/manager";
+// src/renderer/features/records/actions/records-actions.ts
+import { ipc } from "@/lib/ipc-client";
 
 export async function getAllRecords() {
   return ipc.client.database.getAllRecords();
@@ -272,22 +339,36 @@ export async function createRecord(name: string) {
 }
 ```
 
-### Step 6: Use in Components
+### Step 6: Wrap Actions in TanStack Query Hooks
 
 ```typescript
-// src/routes/records.tsx
-import { getAllRecords, createRecord } from "@/actions/database";
+// src/renderer/features/records/queries/records-queries.ts
+import { useQuery } from "@tanstack/react-query";
+import { getAllRecords } from "../actions/records-actions";
+
+export function useRecordsQuery() {
+  return useQuery({
+    queryKey: ["records"],
+    queryFn: getAllRecords,
+  });
+}
+```
+
+Export the feature's public API through its barrel
+(`src/renderer/features/records/index.ts`).
+
+### Step 7: Use the Hook in a Route
+
+```typescript
+// src/renderer/routes/records.tsx
+import { useRecordsQuery, createRecord } from "@/features/records";
 
 function RecordsPage() {
-  const [records, setRecords] = useState([]);
-
-  useEffect(() => {
-    getAllRecords().then(setRecords);
-  }, []);
+  const { data: records, refetch } = useRecordsQuery();
 
   const handleCreate = async () => {
-    const newRecord = await createRecord("New Item");
-    setRecords((prev) => [...prev, newRecord]);
+    await createRecord("New Item");
+    await refetch();
   };
 
   return (/* ... */);
@@ -302,10 +383,10 @@ This boilerplate uses [TanStack Router](https://tanstack.com/router) with file-b
 
 ### Creating a New Route
 
-1. Create a file in `src/routes/`:
+1. Create a file in `src/renderer/routes/`:
 
 ```typescript
-// src/routes/settings.tsx
+// src/renderer/routes/settings.tsx
 import { createFileRoute } from "@tanstack/react-router";
 
 function SettingsPage() {
@@ -322,7 +403,10 @@ export const Route = createFileRoute("/settings")({
 });
 ```
 
-2. The route tree is auto-generated to `src/routeTree.gen.ts`
+2. The route tree is auto-generated to `src/renderer/routeTree.gen.ts`
+
+Keep routes thin: they compose feature modules (`@/features/<feature>`), and
+features never import routes.
 
 ### Route File Naming
 
@@ -350,7 +434,7 @@ navigate({ to: "/settings" });
 ### Accessing Route Parameters
 
 ```typescript
-// src/routes/users/$userId.tsx
+// src/renderer/routes/users/$userId.tsx
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/users/$userId")({
@@ -367,15 +451,18 @@ function UserPage() {
 
 ## UI Components (shadcn/ui)
 
-The boilerplate includes 21+ [shadcn/ui](https://ui.shadcn.com/) components in `src/components/ui/`.
+The boilerplate includes the full [shadcn/ui](https://ui.shadcn.com/) registry, pre-installed in `src/renderer/components/ui/`.
 
 ### Available Components
 
-- **Layout**: Card, Separator, ScrollArea
-- **Forms**: Button, Input, Textarea, Label, Select, DatePicker, NumberInput
-- **Feedback**: Alert, Badge, Progress, Spinner, Sonner (toasts)
-- **Overlays**: Dialog, Popover, Tooltip, Command
-- **Data Entry**: Calendar, InputGroup
+- **Layout & navigation**: Card, Separator, Tabs, Accordion, Collapsible, ScrollArea, Resizable, Sidebar, NavigationMenu, Breadcrumb, Pagination
+- **Forms**: Button, Input, Textarea, Label, Select, Checkbox, RadioGroup, Switch, Slider, Combobox, Field, Toggle, DatePicker, NumberInput
+- **Feedback**: Alert, Badge, Progress, Skeleton, Spinner, Sonner (toasts)
+- **Overlays**: Dialog, AlertDialog, Sheet, Drawer, Popover, Tooltip, Command, DropdownMenu, ContextMenu
+- **Data Entry & display**: Calendar, InputGroup, Table, Chart, Carousel, Avatar
+
+Check `src/renderer/components/ui/` before hand-rolling any primitive — if a
+component exists there, use it.
 
 ### Using Components
 
@@ -417,48 +504,54 @@ pnpm run bump-shadcn-components
 
 ## Component Organization
 
-Pages should be lightweight and composed primarily of components. Organize custom components into folders based on their scope.
+Pages should be lightweight and composed primarily of components. The renderer
+is organized **feature-first**: components belong to the feature that owns
+them, not to the page that happens to render them.
 
 ### Directory Structure
 
 ```
-src/components/
-├── ui/                     # shadcn/ui primitives (DO NOT MODIFY)
-│   ├── button.tsx
-│   ├── card.tsx
-│   └── ...
-├── shared/                 # Components used across multiple pages
-│   ├── user-avatar.tsx
-│   ├── search-bar.tsx
-│   └── data-table/
-│       ├── data-table.tsx
-│       ├── data-table-header.tsx
+src/renderer/
+├── features/
+│   ├── settings/               # Feature module
+│   │   ├── components/         # Feature-owned components
+│   │   │   ├── settings-form.tsx
+│   │   │   └── theme-selector.tsx
+│   │   ├── actions/  queries/  hooks/  types/
+│   │   └── index.ts            # Public API barrel
+│   └── dashboard/
+│       ├── components/
+│       │   ├── stats-card.tsx
+│       │   └── activity-feed.tsx
 │       └── index.ts
-├── settings/               # Components specific to settings page
-│   ├── settings-form.tsx
-│   ├── theme-selector.tsx
-│   └── index.ts
-├── dashboard/              # Components specific to dashboard page
-│   ├── stats-card.tsx
-│   ├── activity-feed.tsx
-│   ├── quick-actions.tsx
-│   └── index.ts
-└── ...
+└── components/
+    ├── ui/                     # shadcn/ui primitives (DO NOT MODIFY)
+    │   ├── button.tsx
+    │   ├── card.tsx
+    │   └── ...
+    ├── shared/                 # Generic components used by 2+ features
+    │   ├── drag-window-region.tsx
+    │   ├── external-link.tsx
+    │   └── index.ts
+    └── layouts/
+        └── base-layout.tsx     # App shell with title bar
 ```
 
 ### Organization Rules
 
-1. **Page-specific components** go in `src/components/<page-name>/`
-   - Only used by one page
-   - Named after the page's route (e.g., `settings/` for `/settings`)
+1. **Feature-owned components** go in `src/renderer/features/<feature>/components/`
+   - Belong to one feature (e.g., `settings/components/` for the settings feature)
+   - Exported through the feature's public `index.ts` barrel — other code
+     imports `@/features/<feature>`, never a feature's internal files
 
-2. **Shared components** go in `src/components/shared/`
-   - Used by 2+ pages
-   - Generic, reusable functionality
+2. **Generic reusable components** go in `src/renderer/components/shared/`
+   - Used by 2+ features
+   - No feature-specific logic; generic, reusable functionality
 
-3. **shadcn/ui components** stay in `src/components/ui/`
-   - Never modify these directly
-   - They are managed by the shadcn CLI
+3. **shadcn/ui components** stay in `src/renderer/components/ui/`
+   - Vendored — never hand-edit these; they are regenerated by the shadcn CLI
+     (`pnpm run bump-shadcn-components`)
+   - Lint enforces that `ui/` only imports other ui components and `utils`/`hooks`
 
 ### When to Create a Component
 
@@ -472,11 +565,9 @@ Extract code into a component when:
 ### Example: Well-Organized Page
 
 ```typescript
-// src/routes/settings.tsx
+// src/renderer/routes/settings.tsx
 import { createFileRoute } from "@tanstack/react-router";
-import { SettingsForm } from "@/components/settings/settings-form";
-import { ThemeSelector } from "@/components/settings/theme-selector";
-import { DangerZone } from "@/components/settings/danger-zone";
+import { SettingsForm, ThemeSelector, DangerZone } from "@/features/settings";
 import { PageHeader } from "@/components/shared/page-header";
 
 function SettingsPage() {
@@ -498,30 +589,33 @@ export const Route = createFileRoute("/settings")({
 });
 ```
 
-### Example: Component with Barrel Export
+### Example: Feature Barrel Export
 
-For folders with multiple components, use an `index.ts` barrel file:
+Every feature has a public `index.ts` barrel that re-exports what other code
+may use:
 
 ```typescript
-// src/components/settings/index.ts
-export { SettingsForm } from "./settings-form";
-export { ThemeSelector } from "./theme-selector";
-export { DangerZone } from "./danger-zone";
+// src/renderer/features/settings/index.ts
+export { SettingsForm } from "./components/settings-form";
+export { ThemeSelector } from "./components/theme-selector";
+export { DangerZone } from "./components/danger-zone";
 ```
 
 Then import cleanly:
 
 ```typescript
-import { SettingsForm, ThemeSelector, DangerZone } from "@/components/settings";
+import { SettingsForm, ThemeSelector, DangerZone } from "@/features/settings";
 ```
 
-### Moving Components Between Scopes
+### Promoting Components Between Scopes
 
-When a page-specific component needs to be used elsewhere:
+When a second feature needs a component that a feature owns:
 
-1. Move it from `src/components/<page>/` to `src/components/shared/`
+1. Promote it from `src/renderer/features/<feature>/components/` to
+   `src/renderer/components/shared/`
 2. Update all imports
-3. Consider if it needs to be made more generic (props, configuration)
+3. Consider if it needs to be made more generic (props, configuration) —
+   anything in `shared/` should carry no feature-specific logic
 
 ### Anti-Patterns to Avoid
 
@@ -542,7 +636,7 @@ function SettingsPage() {
 
 ```
 // BAD: No organization
-src/components/
+src/renderer/components/
 ├── button.tsx
 ├── settings-form.tsx
 ├── dashboard-stats.tsx
@@ -567,7 +661,7 @@ The app supports light and dark themes with system preference detection.
 
 ### How Theming Works
 
-1. **CSS Variables** in `src/styles/global.css` define colors for light/dark modes
+1. **CSS Variables** in `src/renderer/styles/global.css` define colors for light/dark modes
 2. **Electron's nativeTheme** controls the actual theme
 3. **localStorage** persists user preference
 4. **Document class** (`dark`) toggles Tailwind dark mode
@@ -576,11 +670,11 @@ The app supports light and dark themes with system preference detection.
 
 ```typescript
 // Toggle theme
-import { toggleTheme } from "@/actions/theme";
+import { toggleTheme } from "@/features/theme";
 <Button onClick={toggleTheme}>Toggle Theme</Button>
 
 // Get current theme
-import { getCurrentTheme } from "@/actions/theme";
+import { getCurrentTheme } from "@/features/theme";
 const { system, local } = await getCurrentTheme();
 ```
 
@@ -610,19 +704,14 @@ The boilerplate includes a complete auto-update system via `electron-updater`.
 
 ### Configuration
 
-In `package.json`:
+In `electron-builder.yml`:
 
-```json
-{
-  "build": {
-    "publish": {
-      "provider": "github",
-      "owner": "your-username",
-      "repo": "your-repo",
-      "private": true // Set to true for private repositories
-    }
-  }
-}
+```yaml
+publish:
+  provider: github
+  owner: your-username
+  repo: your-repo
+  private: true # Set to true for private repositories
 ```
 
 ### Private Repository Setup
@@ -658,7 +747,7 @@ GITHUB_TOKEN=github_pat_11AU47ZII0...your_token_here
   - App reads token from resources folder at runtime
   - electron-updater checks for updates using the bundled token
 
-The token handling is implemented in `src/main.ts`:
+The token handling and feed configuration are implemented in `src/main/integrations/updater/auto-updater.ts`:
 
 ```typescript
 // Get GitHub token for private repo updates
@@ -688,16 +777,28 @@ function getUpdateToken(): string {
 ### Update Handlers
 
 ```typescript
+// Use the updater feature's actions
+import {
+  checkForUpdates,
+  downloadUpdate,
+  installUpdate,
+} from "@/features/updater";
+
 // Check for updates manually
-import { ipc } from "@/ipc/manager";
-await ipc.client.updater.checkForUpdates();
+await checkForUpdates();
 
 // Download update
-await ipc.client.updater.downloadUpdate();
+await downloadUpdate();
 
 // Install and restart
-await ipc.client.updater.installUpdate();
+await installUpdate();
 ```
+
+The main-process handlers live in `src/main/integrations/updater/handlers.ts`;
+one-way progress events flow main → renderer via `webContents.send` and the
+`contextBridge` API in `src/preload/index.ts` (channel names in
+`src/shared/constants.ts`). The update-notification UI lives in
+`src/renderer/features/updater/`.
 
 ---
 
@@ -714,7 +815,8 @@ pnpm run build          # Build for production
 ### Code Quality
 
 ```bash
-pnpm run lint           # ESLint
+pnpm run lint           # ESLint (includes boundary + naming rules)
+pnpm run type-check     # Type-check all three processes (main, preload, renderer)
 pnpm run format         # Prettier
 ```
 
@@ -723,7 +825,7 @@ pnpm run format         # Prettier
 ```bash
 pnpm run package        # Package without creating installer
 pnpm run make           # Create distributable installers
-pnpm run make:win       # Windows only (WiX MSI)
+pnpm run make:win       # Windows only (NSIS)
 pnpm run make:mac       # macOS only (ZIP)
 pnpm run make:linux     # Linux only (DEB, RPM)
 ```
@@ -732,9 +834,9 @@ pnpm run make:linux     # Linux only (DEB, RPM)
 
 The project uses **electron-vite** for building with a unified configuration in `electron.vite.config.ts`:
 
-- **Main process**: Bundled from `src/main.ts` to `dist/main/index.js`
-- **Preload script**: Bundled from `src/preload.ts` to `dist/preload/index.js`
-- **Renderer process**: Bundled from `index.html` to `dist/renderer/` with React, TanStack Router, and Tailwind
+- **Main process**: Bundled from `src/main/index.ts` to `dist/main/index.js`
+- **Preload script**: Bundled from `src/preload/index.ts` to `dist/preload/index.js`
+- **Renderer process**: Rooted at `src/renderer/` (its `index.html` is the entry), bundled to `dist/renderer/` with React, TanStack Router, and Tailwind
 
 Packaging is handled by **electron-builder** with configuration in:
 
@@ -749,11 +851,11 @@ Packaging is handled by **electron-builder** with configuration in:
 
 **Windows Installer**:
 
-- Uses WiX (not Squirrel.Windows) for better reliability
+- Uses NSIS (not Squirrel.Windows) for better reliability
 - ✅ No ENOENT errors (no dependency on app-update.yml)
 - ✅ Proper custom icon support
 - ✅ Single update mechanism via electron-updater
-- ✅ MSI installer with directory selection
+- ✅ NSIS installer with directory selection
 
 ### Releasing
 
@@ -766,7 +868,7 @@ pnpm run release:major  # 0.1.0 → 1.0.0
 
 The release process:
 
-1. Runs lint and format checks
+1. Runs lint and type-check
 2. Bumps version in package.json
 3. Generates CHANGELOG.md from commits
 4. Creates git tag
@@ -782,11 +884,11 @@ The release process:
 Never open external URLs directly. Use the shell action:
 
 ```typescript
-import { openExternalLink } from "@/actions/shell";
+import { openExternalLink } from "@/features/shell";
 await openExternalLink("https://example.com");
 
 // Or use the ExternalLink component
-import { ExternalLink } from "@/components/external-link";
+import { ExternalLink } from "@/components/shared/external-link";
 <ExternalLink href="https://example.com">Visit Site</ExternalLink>
 ```
 
@@ -803,7 +905,7 @@ toast.loading("Processing...");
 ### Window Controls
 
 ```typescript
-import { minimizeWindow, maximizeWindow, closeWindow } from "@/actions/window";
+import { minimizeWindow, maximizeWindow, closeWindow } from "@/features/window";
 
 <Button onClick={minimizeWindow}>-</Button>
 <Button onClick={maximizeWindow}>□</Button>
@@ -812,21 +914,33 @@ import { minimizeWindow, maximizeWindow, closeWindow } from "@/actions/window";
 
 ### Path Aliases
 
-Use `@/` to reference `src/`:
+| Alias       | Target          | Available in                 |
+| ----------- | --------------- | ---------------------------- |
+| `@/*`       | `src/renderer/` | renderer                     |
+| `@main/*`   | `src/main/`     | main (+ renderer, type-only) |
+| `@shared/*` | `src/shared/`   | all processes                |
 
 ```typescript
 import { Button } from "@/components/ui/button";
-import { ipc } from "@/ipc/manager";
-import { toggleTheme } from "@/actions/theme";
+import { ipc } from "@/lib/ipc-client";
+import { toggleTheme } from "@/features/theme";
+import { UPDATE_CHANNELS } from "@shared/constants";
 ```
+
+The renderer may only use `@main/*` for the type-only router import in
+`lib/ipc-client.ts` — anything else is a lint error.
 
 ### Getting App Info
 
 ```typescript
-import { getCurrentPlatform, getAppVersion } from "@/actions/app";
+import { getPlatform, getAppVersion } from "@/features/app";
 
-const platform = await getCurrentPlatform(); // "win32" | "darwin" | "linux"
+const platform = await getPlatform(); // "win32" | "darwin" | "linux"
 const version = await getAppVersion(); // "0.1.0"
+
+// Or use the TanStack Query hooks in components
+import { usePlatformQuery, useAppVersionQuery } from "@/features/app";
+const { data: version } = useAppVersionQuery();
 ```
 
 ---
@@ -847,10 +961,11 @@ The boilerplate includes [dotenv](https://github.com/motdotla/dotenv) for enviro
 
 ### Usage
 
-Environment variables are automatically loaded in the main process. Access them via `process.env`:
+Environment variables are automatically loaded in the main process (dotenv
+loading lives in `src/main/common/env.ts`). Access them via `process.env`:
 
 ```typescript
-// In main process (src/main.ts or any main process code)
+// In any main process code (src/main/**)
 const apiKey = process.env.API_KEY;
 const debugMode = process.env.DEBUG === "true";
 ```
@@ -877,23 +992,26 @@ const debugMode = process.env.DEBUG === "true";
 
 ### File Locations by Task
 
-| Task                | Files to Modify                                     |
-| ------------------- | --------------------------------------------------- |
-| Add new page        | `src/routes/<name>.tsx`                             |
-| Add IPC handler     | `src/ipc/<domain>/handlers.ts`, `src/ipc/router.ts` |
-| Add UI component    | `npx shadcn@latest add <component>`                 |
-| Modify theme colors | `src/styles/global.css`                             |
-| Change app icon     | `assets/icons/icon.svg` → `pnpm run generate-icons` |
-| Configure app       | `pnpm run init-project`                             |
+| Task                | Files to Modify                                                      |
+| ------------------- | -------------------------------------------------------------------- |
+| Add new page        | `src/renderer/routes/<name>.tsx`                                     |
+| Add a feature       | `pnpm new:feature <name>` (scaffolds main domain + renderer feature) |
+| Add IPC handler     | `src/main/core/<domain>/handlers.ts`, `src/main/core/router.ts`      |
+| Add UI component    | `npx shadcn@latest add <component>`                                  |
+| Modify theme colors | `src/renderer/styles/global.css`                                     |
+| Change app icon     | `assets/icons/icon.svg` → `pnpm run generate-icons`                  |
+| Configure app       | `pnpm run init-project`                                              |
 
 ### Common Commands
 
 ```bash
 pnpm run start              # Development
-pnpm run lint               # Check code
+pnpm run lint               # Check code (boundaries + naming included)
+pnpm run type-check         # Type-check main, preload, and renderer
 pnpm run format             # Format code
 pnpm run make               # Build installer
 pnpm run release            # Version bump + release
+pnpm new:feature <name>     # Scaffold a feature module (main + renderer)
 pnpm run bump-shadcn-components  # Update UI library
 pnpm run generate-icons     # Regenerate icons
 pnpm run init-project       # Setup wizard

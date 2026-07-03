@@ -182,17 +182,14 @@ async function main() {
       platforms: targetPlatforms,
     });
 
-    console.log("Updating forge.config.ts...");
-    await replacer.updateForgeConfig(ROOT, githubOwner, projectName);
-
     console.log("Updating index.html...");
     await replacer.updateIndexHtml(ROOT, productName);
 
     console.log("Updating update-notification.tsx...");
     await replacer.updateNotificationComponent(ROOT, githubOwner, projectName);
 
-    console.log("Updating main.ts (autoUpdater config)...");
-    await replacer.updateMainTs(ROOT, githubOwner, projectName);
+    console.log("Updating auto-updater.ts (autoUpdater config)...");
+    await replacer.updateAutoUpdaterConfig(ROOT, githubOwner, projectName);
 
     console.log("Updating README.md...");
     await replacer.updateReadme(ROOT, productName, description);

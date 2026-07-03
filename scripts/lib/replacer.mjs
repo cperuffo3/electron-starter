@@ -6,9 +6,10 @@ import path from "path";
  */
 export const FILES_TO_UPDATE = {
   packageJson: ["package.json"],
-  forgeConfig: ["forge.config.ts"],
-  indexHtml: ["index.html"],
-  updateNotification: ["src/components/update-notification.tsx"],
+  indexHtml: ["src/renderer/index.html"],
+  updateNotification: [
+    "src/renderer/features/updater/components/update-notification.tsx",
+  ],
   docs: ["README.md", "CLAUDE.md"],
 };
 
@@ -86,25 +87,12 @@ export async function updatePackageJson(rootDir, config) {
 }
 
 /**
- * Update forge.config.ts with new GitHub publish settings
- * @param {string} rootDir - Root directory of the project
- * @param {string} githubOwner - GitHub owner
- * @param {string} projectName - Project name
- */
-export async function updateForgeConfig(rootDir, githubOwner, projectName) {
-  await replaceInFile(path.join(rootDir, "forge.config.ts"), [
-    { from: 'owner: "cperuffo3"', to: `owner: "${githubOwner}"` },
-    { from: 'name: "electron-starter"', to: `name: "${projectName}"` },
-  ]);
-}
-
-/**
  * Update index.html with new title
  * @param {string} rootDir - Root directory of the project
  * @param {string} productName - Product name (display name)
  */
 export async function updateIndexHtml(rootDir, productName) {
-  await replaceInFile(path.join(rootDir, "index.html"), [
+  await replaceInFile(path.join(rootDir, "src/renderer/index.html"), [
     {
       from: "<title>Electron Starter</title>",
       to: `<title>${productName}</title>`,
@@ -124,7 +112,10 @@ export async function updateNotificationComponent(
   projectName,
 ) {
   await replaceInFile(
-    path.join(rootDir, "src/components/update-notification.tsx"),
+    path.join(
+      rootDir,
+      "src/renderer/features/updater/components/update-notification.tsx",
+    ),
     [
       {
         from: "https://github.com/cperuffo3/electron-starter/releases/latest",
@@ -218,7 +209,10 @@ export async function updateClaudeMd(rootDir, productName) {
  */
 export async function updateHeroSection(rootDir, productName) {
   await replaceInFile(
-    path.join(rootDir, "src/components/home/hero-section.tsx"),
+    path.join(
+      rootDir,
+      "src/renderer/features/home/components/hero-section.tsx",
+    ),
     [
       {
         from: ">Electron Starter</h1>",
@@ -234,12 +228,15 @@ export async function updateHeroSection(rootDir, productName) {
  * @param {string} productName - Product name (display name)
  */
 export async function updateBaseLayout(rootDir, productName) {
-  await replaceInFile(path.join(rootDir, "src/layouts/base-layout.tsx"), [
-    {
-      from: '<DragWindowRegion title="Electron Starter"',
-      to: `<DragWindowRegion title="${productName}"`,
-    },
-  ]);
+  await replaceInFile(
+    path.join(rootDir, "src/renderer/components/layouts/base-layout.tsx"),
+    [
+      {
+        from: '<DragWindowRegion title="Electron Starter"',
+        to: `<DragWindowRegion title="${productName}"`,
+      },
+    ],
+  );
 }
 
 /**
@@ -265,22 +262,29 @@ export async function resetChangelog(rootDir, version, productName) {
 }
 
 /**
- * Update main.ts with new GitHub owner and repo for autoUpdater
+ * Update the auto-updater integration with new GitHub owner and repo
  * @param {string} rootDir - Root directory of the project
  * @param {string} githubOwner - GitHub owner
  * @param {string} projectName - Project name (repo name)
  */
-export async function updateMainTs(rootDir, githubOwner, projectName) {
-  await replaceInFile(path.join(rootDir, "src/main.ts"), [
-    {
-      from: 'owner: "cperuffo3"',
-      to: `owner: "${githubOwner}"`,
-    },
-    {
-      from: 'repo: "electron-starter"',
-      to: `repo: "${projectName}"`,
-    },
-  ]);
+export async function updateAutoUpdaterConfig(
+  rootDir,
+  githubOwner,
+  projectName,
+) {
+  await replaceInFile(
+    path.join(rootDir, "src/main/integrations/updater/auto-updater.ts"),
+    [
+      {
+        from: 'owner: "cperuffo3"',
+        to: `owner: "${githubOwner}"`,
+      },
+      {
+        from: 'repo: "electron-starter"',
+        to: `repo: "${projectName}"`,
+      },
+    ],
+  );
 }
 
 /**
