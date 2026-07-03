@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.1](https://github.com/cperuffo3/electron-starter/compare/v0.6.0...v0.6.1) (2026-07-03)
+
+### Refactoring
+
+- refactor: process-split src and enforce feature-first architecture
+
 ## [0.6.0](https://github.com/cperuffo3/electron-starter/compare/v0.5.2...v0.6.0) (2026-06-28)
 
 ### Features
