@@ -1,6 +1,7 @@
+import { ComponentProps } from "react";
+
 import { openExternalLink } from "@/features/shell";
 import { cn } from "@/utils/tailwind";
-import { ComponentProps } from "react";
 
 export function ExternalLink({
   children,

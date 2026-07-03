@@ -148,9 +148,10 @@ channel names in `src/shared/constants.ts` and types in `src/shared/types/`.
 | `@shared/*` | `src/shared/`   | all processes                |
 
 ```typescript
+import { UPDATE_CHANNELS } from "@shared/constants";
+
 import { Button } from "@/components/ui/button";
 import { ipc } from "@/lib/ipc-client";
-import { UPDATE_CHANNELS } from "@shared/constants";
 ```
 
 ### TypeScript configs

@@ -1,8 +1,8 @@
-import * as React from "react";
+import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import { Menubar as MenubarPrimitive } from "radix-ui";
+import * as React from "react";
 
 import { cn } from "@/utils/tailwind";
-import { CheckIcon, ChevronRightIcon } from "lucide-react";
 
 function Menubar({
   className,

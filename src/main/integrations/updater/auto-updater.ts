@@ -1,8 +1,10 @@
+import { autoUpdater } from "electron-updater";
 import { existsSync, readFileSync } from "fs";
 import path from "path";
-import { autoUpdater } from "electron-updater";
-import { ipcContext } from "@main/core/context";
+
 import { inDevelopment, isPortable } from "@main/common/env";
+import { ipcContext } from "@main/core/context";
+
 import { UPDATE_CHANNELS } from "@shared/constants";
 
 // Get GitHub token for private repo updates

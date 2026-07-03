@@ -1,16 +1,16 @@
-import globals from "globals";
+import { includeIgnoreFile } from "@eslint/compat";
 import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
 import eslintPluginPrettierRecommended from "eslint-config-prettier";
-import reactHooks from "eslint-plugin-react-hooks";
-import tailwindCanonicalClasses from "eslint-plugin-tailwind-canonical-classes";
 import boundaries from "eslint-plugin-boundaries";
 import checkFile from "eslint-plugin-check-file";
-import path from "node:path";
-import { includeIgnoreFile } from "@eslint/compat";
-import { fileURLToPath } from "node:url";
+import pluginReact from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import tailwindCanonicalClasses from "eslint-plugin-tailwind-canonical-classes";
 import { defineConfig } from "eslint/config";
+import globals from "globals";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import tseslint from "typescript-eslint";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

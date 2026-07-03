@@ -1,7 +1,7 @@
-import { defineConfig } from "electron-vite";
-import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "electron-vite";
 import { resolve } from "path";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 

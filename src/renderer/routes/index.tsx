@@ -1,15 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import {
+  AiSectionCard,
+  CustomizationCard,
+  FeaturesGrid,
   HeroSection,
   QuickStartCard,
-  FeaturesGrid,
   ScriptsCard,
-  CustomizationCard,
-  AiSectionCard,
 } from "@/features/home";
 
 function WelcomePage() {

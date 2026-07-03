@@ -1,6 +1,8 @@
-import { ipcMain } from "electron";
 import { RPCHandler } from "@orpc/server/message-port";
+import { ipcMain } from "electron";
+
 import { IPC_CHANNELS } from "@shared/constants";
+
 import { router } from "./router";
 
 const rpcHandler: RPCHandler<Record<never, never>> = new RPCHandler(router);

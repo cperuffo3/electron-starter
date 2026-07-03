@@ -1,3 +1,5 @@
+import { Bot, FileText, Layers, ListChecks } from "lucide-react";
+
 import {
   Card,
   CardContent,
@@ -5,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Bot, FileText, Layers, ListChecks } from "lucide-react";
 
 export function AiSectionCard() {
   return (

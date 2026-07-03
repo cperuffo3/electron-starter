@@ -1,5 +1,7 @@
-import BaseLayout from "@/components/layouts/base-layout";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
+
+import BaseLayout from "@/components/layouts/base-layout";
+
 /* import { TanStackRouterDevtools } from '@tanstack/react-router-devtools' */
 
 /*

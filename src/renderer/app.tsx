@@ -1,7 +1,8 @@
-import { useEffect } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { ThemeProvider } from "next-themes";
+import { useEffect } from "react";
+
 import { Toaster } from "@/components/ui/sonner";
 import { syncWithLocalTheme } from "@/features/theme";
 import { queryClient } from "@/lib/query-client";

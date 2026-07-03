@@ -1,5 +1,5 @@
-import { app } from "electron";
 import { config } from "dotenv";
+import { app } from "electron";
 import { existsSync } from "fs";
 import path from "path";
 

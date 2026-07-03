@@ -1,6 +1,7 @@
-import { app } from "electron";
 import { os } from "@orpc/server";
+import { app } from "electron";
 import { autoUpdater } from "electron-updater";
+
 import type {
   UpdateCheckResult,
   UpdateDownloadResult,

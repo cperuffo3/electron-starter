@@ -212,10 +212,11 @@ code ever reaches the renderer bundle.
 ```typescript
 // Option 1: Use a feature's action wrappers (recommended)
 import { toggleTheme } from "@/features/theme";
-await toggleTheme();
-
 // Option 2: Direct IPC client access (only inside feature actions)
 import { ipc } from "@/lib/ipc-client";
+
+await toggleTheme();
+
 const version = await ipc.client.app.appVersion();
 ```
 
@@ -265,6 +266,9 @@ src/main/core/database/
 import { os } from "@orpc/server";
 import { z } from "zod";
 
+// Handler with context (access to BrowserWindow)
+import { ipcContext } from "../context";
+
 // Simple handler (no input)
 export const getAllRecords = os.handler(async () => {
   // Access Node.js APIs, databases, file system, etc.
@@ -278,9 +282,6 @@ export const createRecord = os
     // input is typed as { name: string }
     return { id: Date.now(), name: input.name };
   });
-
-// Handler with context (access to BrowserWindow)
-import { ipcContext } from "../context";
 
 export const showNotification = os
   .use(ipcContext.mainWindowContext)
@@ -296,7 +297,7 @@ export const showNotification = os
 
 ```typescript
 // src/main/core/database/index.ts
-import { getAllRecords, createRecord, showNotification } from "./handlers";
+import { createRecord, getAllRecords, showNotification } from "./handlers";
 
 export const database = {
   getAllRecords,
@@ -344,6 +345,7 @@ export async function createRecord(name: string) {
 ```typescript
 // src/renderer/features/records/queries/records-queries.ts
 import { useQuery } from "@tanstack/react-query";
+
 import { getAllRecords } from "../actions/records-actions";
 
 export function useRecordsQuery() {
@@ -604,7 +606,7 @@ export { DangerZone } from "./components/danger-zone";
 Then import cleanly:
 
 ```typescript
-import { SettingsForm, ThemeSelector, DangerZone } from "@/features/settings";
+import { DangerZone, SettingsForm, ThemeSelector } from "@/features/settings";
 ```
 
 ### Promoting Components Between Scopes
@@ -921,10 +923,11 @@ import { minimizeWindow, maximizeWindow, closeWindow } from "@/features/window";
 | `@shared/*` | `src/shared/`   | all processes                |
 
 ```typescript
-import { Button } from "@/components/ui/button";
-import { ipc } from "@/lib/ipc-client";
-import { toggleTheme } from "@/features/theme";
 import { UPDATE_CHANNELS } from "@shared/constants";
+
+import { Button } from "@/components/ui/button";
+import { toggleTheme } from "@/features/theme";
+import { ipc } from "@/lib/ipc-client";
 ```
 
 The renderer may only use `@main/*` for the type-only router import in

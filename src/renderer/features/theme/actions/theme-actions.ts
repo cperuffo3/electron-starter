@@ -1,6 +1,7 @@
-import { ThemeMode } from "../types/theme.types";
-import { ipc } from "@/lib/ipc-client";
 import { LOCAL_STORAGE_KEYS } from "@/lib/constants";
+import { ipc } from "@/lib/ipc-client";
+
+import { ThemeMode } from "../types/theme.types";
 
 export interface ThemePreferences {
   system: ThemeMode;

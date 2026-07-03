@@ -1,8 +1,9 @@
-import { app, BrowserWindow } from "electron";
+import { BrowserWindow, app } from "electron";
 import {
-  installExtension,
   REACT_DEVELOPER_TOOLS,
+  installExtension,
 } from "electron-devtools-installer";
+
 import { loadEnv } from "@main/common/env";
 import { registerRpcServer } from "@main/core/rpc-server";
 import { setupAutoUpdater } from "@main/integrations/updater/auto-updater";

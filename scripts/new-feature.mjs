@@ -15,7 +15,6 @@
  * See CLAUDE.md ("Architecture & Conventions") for the rules the generated
  * files follow.
  */
-
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";

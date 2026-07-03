@@ -1,12 +1,12 @@
-import * as React from "react";
-
-import { cn } from "@/utils/tailwind";
-import { Button } from "@/components/ui/button";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
 } from "lucide-react";
+import * as React from "react";
+
+import { Button } from "@/components/ui/button";
+import { cn } from "@/utils/tailwind";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (

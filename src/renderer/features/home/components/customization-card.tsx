@@ -1,5 +1,6 @@
+import { Code, PackageOpen, Palette, WandSparkles } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { WandSparkles, PackageOpen, Palette, Code } from "lucide-react";
 
 export function CustomizationCard() {
   return (

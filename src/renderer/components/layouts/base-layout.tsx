@@ -1,7 +1,8 @@
-import React from "react";
-import { Home, Sun, Moon } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { Home, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import React from "react";
+
 import { DragWindowRegion } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";

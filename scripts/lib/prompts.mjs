@@ -1,5 +1,6 @@
 import { checkbox, confirm, input, select } from "@inquirer/prompts";
-import { validateProjectName, validateGitHubOwner } from "./utils.mjs";
+
+import { validateGitHubOwner, validateProjectName } from "./utils.mjs";
 
 /**
  * Version options for initial project version

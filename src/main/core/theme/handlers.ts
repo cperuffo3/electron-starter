@@ -1,5 +1,6 @@
 import { os } from "@orpc/server";
 import { nativeTheme } from "electron";
+
 import { setThemeModeInputSchema } from "./schemas";
 
 export const getCurrentThemeMode = os.handler(() => {

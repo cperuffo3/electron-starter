@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
+
 import { IPC_CHANNELS, UPDATE_CHANNELS } from "@shared/constants";
-import type { UpdateInfo, DownloadProgress } from "@shared/types/updater";
+import type { DownloadProgress, UpdateInfo } from "@shared/types/updater";
 
 // Forward oRPC server port
 window.addEventListener("message", (event) => {

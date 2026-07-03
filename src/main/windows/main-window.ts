@@ -1,7 +1,8 @@
-import { app, BrowserWindow } from "electron";
+import { BrowserWindow, app } from "electron";
 import path from "path";
-import { ipcContext } from "@main/core/context";
+
 import { inDevelopment } from "@main/common/env";
+import { ipcContext } from "@main/core/context";
 
 function getIconPath() {
   if (inDevelopment) {

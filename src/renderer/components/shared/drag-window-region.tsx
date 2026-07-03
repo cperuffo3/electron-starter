@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+
 import { usePlatformQuery } from "@/features/app";
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/features/window";
 

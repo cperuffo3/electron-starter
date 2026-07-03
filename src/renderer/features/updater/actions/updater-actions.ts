@@ -1,8 +1,9 @@
-import { ipc } from "@/lib/ipc-client";
 import type {
   UpdateCheckResult,
   UpdateDownloadResult,
 } from "@shared/types/updater";
+
+import { ipc } from "@/lib/ipc-client";
 
 export function checkForUpdates(): Promise<UpdateCheckResult> {
   return ipc.client.updater.checkForUpdates();

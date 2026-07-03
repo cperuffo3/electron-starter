@@ -1,5 +1,6 @@
+import { Code, Cog, Palette, Plug } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Code, Palette, Plug, Cog } from "lucide-react";
 
 export function FeaturesGrid() {
   return (

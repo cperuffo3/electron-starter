@@ -11,7 +11,6 @@
  * - Resetting version numbers
  * - Optionally resetting git history
  */
-
 import { execSync } from "child_process";
 import fs from "fs/promises";
 import path from "path";

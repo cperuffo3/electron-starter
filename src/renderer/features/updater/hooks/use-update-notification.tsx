@@ -1,20 +1,22 @@
 import {
-  useState,
-  useEffect,
-  useCallback,
-  createContext,
-  useContext,
   type ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
-import type { UpdateInfo, DownloadProgress } from "@shared/types/updater";
+
+import type { DownloadProgress, UpdateInfo } from "@shared/types/updater";
+
 import {
   checkForUpdates as checkForUpdatesAction,
   downloadUpdate as downloadUpdateAction,
   installUpdate as installUpdateAction,
   isPortable as isPortableAction,
 } from "../actions/updater-actions";
+import type { UpdateErrorDetails, UpdateState } from "../types/updater.types";
 import { classifyUpdateError } from "../utils/classify-update-error";
-import type { UpdateState, UpdateErrorDetails } from "../types/updater.types";
 
 interface UpdateContextValue {
   state: UpdateState;

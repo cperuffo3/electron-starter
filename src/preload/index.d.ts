@@ -1,6 +1,6 @@
 // Types for the APIs this preload exposes on `window` via contextBridge.
 // Included by tsconfig.web.json so renderer code sees them.
-import type { UpdateInfo, DownloadProgress } from "../shared/types/updater";
+import type { DownloadProgress, UpdateInfo } from "../shared/types/updater";
 
 interface UpdateAPI {
   onUpdateChecking(callback: () => void): () => void;
