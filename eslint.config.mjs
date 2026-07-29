@@ -94,62 +94,79 @@ export default defineConfig([
         {
           default: "disallow",
           message:
-            "${file.type} code may not import ${dependency.type} code (process/layer boundary)",
-          rules: [
+            "{{from.type}} code may not import {{to.type}} code (process/layer boundary)",
+          policies: [
             // shared is imported by everyone, imports no one
-            { from: { type: "shared" }, allow: [{ to: { type: "shared" } }] },
+            {
+              from: { element: { type: "shared" } },
+              allow: [{ to: { element: { type: "shared" } } }],
+            },
             // each Electron process only sees itself + shared
             {
-              from: { type: "main" },
-              allow: [{ to: { type: ["main", "shared"] } }],
+              from: { element: { type: "main" } },
+              allow: [{ to: { element: { type: ["main", "shared"] } } }],
             },
             {
-              from: { type: "preload" },
-              allow: [{ to: { type: ["preload", "shared"] } }],
+              from: { element: { type: "preload" } },
+              allow: [{ to: { element: { type: ["preload", "shared"] } } }],
             },
             // vendored shadcn registry: only itself + cn/hooks
-            { from: { type: "ui" }, allow: [{ to: { type: ["ui", "base"] } }] },
-            { from: { type: "base" }, allow: [{ to: { type: "base" } }] },
+            {
+              from: { element: { type: "ui" } },
+              allow: [{ to: { element: { type: ["ui", "base"] } } }],
+            },
+            {
+              from: { element: { type: "base" } },
+              allow: [{ to: { element: { type: "base" } } }],
+            },
             // features never import routes; cross-feature imports allowed
             {
-              from: { type: "feature" },
+              from: { element: { type: "feature" } },
               allow: [
                 {
-                  to: { type: ["feature", "ui", "base", "renderer", "shared"] },
+                  to: {
+                    element: {
+                      type: ["feature", "ui", "base", "renderer", "shared"],
+                    },
+                  },
                 },
               ],
             },
             {
-              from: { type: "routes" },
+              from: { element: { type: "routes" } },
               allow: [
                 {
                   to: {
-                    type: [
-                      "routes",
-                      "feature",
-                      "ui",
-                      "base",
-                      "renderer",
-                      "shared",
-                    ],
+                    element: {
+                      type: [
+                        "routes",
+                        "feature",
+                        "ui",
+                        "base",
+                        "renderer",
+                        "shared",
+                      ],
+                    },
                   },
                 },
               ],
             },
             // everything else in the renderer (lib, shared components, entry)
             {
-              from: { type: "renderer" },
+              from: { element: { type: "renderer" } },
               allow: [
                 {
                   to: {
-                    type: [
-                      "renderer",
-                      "ui",
-                      "base",
-                      "feature",
-                      "routes",
-                      "shared",
-                    ],
+                    element: {
+                      type: [
+                        "renderer",
+                        "ui",
+                        "base",
+                        "feature",
+                        "routes",
+                        "shared",
+                      ],
+                    },
                   },
                 },
               ],
@@ -158,8 +175,13 @@ export default defineConfig([
             // import the main-process oRPC router AS A TYPE ONLY (erased at
             // build time). Value imports of main code stay illegal.
             {
-              from: { type: ["renderer", "feature"] },
-              allow: [{ to: { type: "main" }, dependency: { kind: "type" } }],
+              from: { element: { type: ["renderer", "feature"] } },
+              allow: [
+                {
+                  to: { element: { type: "main" } },
+                  dependency: { kind: "type" },
+                },
+              ],
             },
           ],
         },
