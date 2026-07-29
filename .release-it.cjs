@@ -19,26 +19,30 @@ module.exports = {
   hooks: {
     "before:init": ["pnpm run lint", "pnpm run type-check"],
     "after:bump": "pnpm install --lockfile-only && pnpm run format",
+    // The infile is written after the format hook above; prettier here turns
+    // the writer's hardcoded "*" bullets into "-" before the release commit.
+    "before:git:release": "npx prettier --write CHANGELOG.md",
   },
   plugins: {
     "@release-it/conventional-changelog": {
       preset: {
         name: "conventionalcommits",
+        // conventionalcommits >=10 ignores the old `hidden: true` flag;
+        // visibility and bump behavior are driven by `effect` instead.
         types: [
-          { type: "feat", section: "Features" },
-          { type: "fix", section: "Bug Fixes" },
-          { type: "perf", section: "Performance" },
-          { type: "refactor", section: "Refactoring" },
-          { type: "docs", section: "Documentation" },
-          { type: "chore", hidden: true },
-          { type: "style", hidden: true },
-          { type: "test", hidden: true },
+          { type: "feat", section: "Features", effect: "bump" },
+          { type: "fix", section: "Bug Fixes", effect: "bump" },
+          { type: "perf", section: "Performance", effect: "bump" },
+          { type: "refactor", section: "Refactoring", effect: "bump" },
+          { type: "docs", section: "Documentation", effect: "bump" },
+          { type: "chore", effect: "hidden" },
+          { type: "style", effect: "hidden" },
+          { type: "test", effect: "hidden" },
         ],
       },
       infile: "CHANGELOG.md",
       writerOpts: {
-        // Bare commit headers, no hash links; prettier (after:bump) turns the
-        // writer's "*" bullets into "-" to match the existing changelog style.
+        // Bare commit headers, no hash links, matching the existing style.
         commitPartial: (context, commit) => commit.header ?? "",
       },
     },
