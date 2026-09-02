@@ -19,9 +19,13 @@ module.exports = {
   hooks: {
     "before:init": ["pnpm run lint", "pnpm run type-check"],
     "after:bump": "pnpm install --lockfile-only && pnpm run format",
-    // The infile is written after the format hook above; prettier here turns
-    // the writer's hardcoded "*" bullets into "-" before the release commit.
-    "before:git:release": "npx prettier --write CHANGELOG.md",
+    // The infile is written (and staged) after the format hook above; prettier
+    // here turns the writer's hardcoded "*" bullets into "-", and the file is
+    // re-staged so the formatted version lands in the release commit.
+    "before:git:release": [
+      "pnpm exec prettier --write CHANGELOG.md",
+      "git add CHANGELOG.md",
+    ],
   },
   plugins: {
     "@release-it/conventional-changelog": {
