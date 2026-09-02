@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.0](https://github.com/cperuffo3/electron-starter/compare/v0.6.2...v0.7.0) (2026-09-02)
+
+### Features
+
+* feat: upgrade toolchain to Electron 44, Vite 8 and plugin-react 6
+
 ## [0.6.2](https://github.com/cperuffo3/electron-starter/compare/v0.6.1...v0.6.2) (2026-07-29)
 
 ## [0.6.1](https://github.com/cperuffo3/electron-starter/compare/v0.6.0...v0.6.1) (2026-07-03)
