@@ -43,10 +43,10 @@ pnpm run bump-shadcn-components  # Update shadcn/ui components
 
 | Layer        | Technology                            |
 | ------------ | ------------------------------------- |
-| Framework    | Electron 41 + electron-vite           |
-| Build        | Vite 7 (via electron-vite)            |
+| Framework    | Electron 44 + electron-vite           |
+| Build        | Vite 8 (via electron-vite)            |
 | Packaging    | electron-builder                      |
-| UI           | React 19 + TypeScript 5.9             |
+| UI           | React 19 + TypeScript 6.0             |
 | Styling      | Tailwind CSS 4 + shadcn/ui            |
 | Routing      | TanStack Router (file-based)          |
 | Server state | TanStack Query (wraps IPC actions)    |

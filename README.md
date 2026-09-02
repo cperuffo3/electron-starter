@@ -9,9 +9,9 @@ A modern Electron boilerplate with React, Tailwind CSS 4, and shadcn/ui — desi
 
 | Category | Technologies |
 |----------|-------------|
-| **Framework** | Electron 41, electron-vite, electron-builder |
-| **Build** | Vite 7 (via electron-vite) |
-| **UI** | React 19, TypeScript 5.9, Tailwind CSS 4, shadcn/ui |
+| **Framework** | Electron 44, electron-vite, electron-builder |
+| **Build** | Vite 8 (via electron-vite) |
+| **UI** | React 19, TypeScript 6, Tailwind CSS 4, shadcn/ui |
 | **Routing** | TanStack Router (file-based, fully typed) |
 | **IPC** | oRPC (type-safe RPC over MessagePort) |
 | **Updates** | electron-updater (GitHub Releases) |

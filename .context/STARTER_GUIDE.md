@@ -23,8 +23,8 @@ This is a modern Electron desktop application built with:
 
 | Layer        | Technology                 | Purpose                                     |
 | ------------ | -------------------------- | ------------------------------------------- |
-| Framework    | Electron 41                | Desktop app shell                           |
-| Build        | electron-vite + Vite 7     | Unified build system for all processes      |
+| Framework    | Electron 44                | Desktop app shell                           |
+| Build        | electron-vite + Vite 8     | Unified build system for all processes      |
 | Packaging    | electron-builder           | Multi-platform installers with ASAR/fuses   |
 | UI           | React 19 + TypeScript      | Component-based UI                          |
 | Styling      | Tailwind CSS 4 + shadcn/ui | Utility-first CSS with pre-built components |
